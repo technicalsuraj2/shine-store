@@ -1,14 +1,18 @@
 const DataStore = {
   init() {
-    if (!localStorage.getItem('mf_products')) this.seedProducts();
-    if (!localStorage.getItem('mf_orders')) this.seedOrders();
-    if (!localStorage.getItem('mf_users')) this.seedUsers();
-    if (!localStorage.getItem('mf_categories')) this.seedCategories();
-    if (!localStorage.getItem('mf_coupons')) this.seedCoupons();
+    const version = '2.0';
+    if (localStorage.getItem('mf_data_version') !== version) {
+      this.seedProducts();
+      this.seedOrders();
+      this.seedUsers();
+      this.seedCategories();
+      this.seedCoupons();
+      this.seedBanners();
+      localStorage.setItem('mf_data_version', version);
+    }
     if (!localStorage.getItem('mf_reviews')) localStorage.setItem('mf_reviews', '[]');
     if (!localStorage.getItem('mf_cart')) localStorage.setItem('mf_cart', '[]');
     if (!localStorage.getItem('mf_wishlist')) localStorage.setItem('mf_wishlist', '[]');
-    if (!localStorage.getItem('mf_banners')) this.seedBanners();
   },
 
   getProducts() { return JSON.parse(localStorage.getItem('mf_products')) || []; },
@@ -192,61 +196,48 @@ const DataStore = {
 
   seedCategories() {
     const cats = [
-      { id: 1, name: 'All', icon: 'All', image: 'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=100&h=100&fit=crop' },
-      { id: 2, name: 'Women Ethnic', icon: 'Ethnic', image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=100&h=100&fit=crop' },
-      { id: 3, name: 'Women Western', icon: 'Western', image: 'https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=100&h=100&fit=crop' },
-      { id: 4, name: 'Men', icon: 'Men', image: 'https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=100&h=100&fit=crop' },
-      { id: 5, name: 'Girls', icon: 'Girls', image: 'https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=100&h=100&fit=crop' },
-      { id: 6, name: 'Boys', icon: 'Boys', image: 'https://images.unsplash.com/photo-1503917988258-f87a78e3c995?w=100&h=100&fit=crop' },
-      { id: 7, name: 'Bags', icon: 'Bags', image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=100&h=100&fit=crop' },
-      { id: 8, name: 'Footwear', icon: 'Shoes', image: 'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=100&h=100&fit=crop' },
-      { id: 9, name: 'Jeans', icon: 'Jeans', image: 'https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=100&h=100&fit=crop' },
-      { id: 10, name: 'Kurta Sets', icon: 'Kurta', image: 'https://images.unsplash.com/photo-1583391733956-6c78276477e1?w=100&h=100&fit=crop' },
-      { id: 11, name: 'Sarees', icon: 'Saree', image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=100&h=100&fit=crop' },
-      { id: 12, name: 'Accessories', icon: 'Accessories', image: 'https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=100&h=100&fit=crop' },
-      { id: 13, name: 'Jewellery', icon: 'Jewellery', image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=100&h=100&fit=crop' },
-      { id: 14, name: 'Beauty', icon: 'Beauty', image: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=100&h=100&fit=crop' },
-      { id: 15, name: 'Home Decor', icon: 'Home', image: 'https://images.unsplash.com/photo-1586105251261-72a756497a11?w=100&h=100&fit=crop' },
-      { id: 16, name: 'Kids Wear', icon: 'Kids', image: 'https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?w=100&h=100&fit=crop' },
-      { id: 17, name: 'Winter Wear', icon: 'Winter', image: 'https://images.unsplash.com/photo-1539533113208-f6df8cc8b543?w=100&h=100&fit=crop' },
-      { id: 18, name: 'Sports', icon: 'Sports', image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=100&h=100&fit=crop' },
-      { id: 19, name: 'Watches', icon: 'Watches', image: 'https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=100&h=100&fit=crop' },
-      { id: 20, name: 'Luxe', icon: 'Luxe', image: 'https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=100&h=100&fit=crop' },
-      { id: 21, name: 'Electronics', icon: 'Electronics', image: 'https://images.unsplash.com/photo-1491933382434-500287f6b523?w=100&h=100&fit=crop' },
-      { id: 22, name: 'Gifts', icon: 'Gifts', image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=100&h=100&fit=crop' },
+      { id: 1, name: 'All', icon: 'All', image: 'https://picsum.photos/seed/all-cat/100/100' },
+      { id: 2, name: 'Women Ethnic', icon: 'Ethnic', image: 'https://picsum.photos/seed/women-ethnic/100/100' },
+      { id: 3, name: 'Women Western', icon: 'Western', image: 'https://picsum.photos/seed/women-western/100/100' },
+      { id: 4, name: 'Men', icon: 'Men', image: 'https://picsum.photos/seed/men/100/100' },
+      { id: 5, name: 'Girls', icon: 'Girls', image: 'https://picsum.photos/seed/girls/100/100' },
+      { id: 6, name: 'Boys', icon: 'Boys', image: 'https://picsum.photos/seed/boys/100/100' },
+      { id: 7, name: 'Bags', icon: 'Bags', image: 'https://picsum.photos/seed/bags/100/100' },
+      { id: 8, name: 'Footwear', icon: 'Shoes', image: 'https://picsum.photos/seed/footwear/100/100' },
+      { id: 9, name: 'Jeans', icon: 'Jeans', image: 'https://picsum.photos/seed/jeans/100/100' },
+      { id: 10, name: 'Kurta Sets', icon: 'Kurta', image: 'https://picsum.photos/seed/kurta/100/100' },
+      { id: 11, name: 'Sarees', icon: 'Saree', image: 'https://picsum.photos/seed/sarees/100/100' },
+      { id: 12, name: 'Accessories', icon: 'Accessories', image: 'https://picsum.photos/seed/accessories/100/100' },
+      { id: 13, name: 'Jewellery', icon: 'Jewellery', image: 'https://picsum.photos/seed/jewellery/100/100' },
+      { id: 14, name: 'Beauty', icon: 'Beauty', image: 'https://picsum.photos/seed/beauty/100/100' },
+      { id: 15, name: 'Home Decor', icon: 'Home', image: 'https://picsum.photos/seed/home-decor/100/100' },
+      { id: 16, name: 'Kids Wear', icon: 'Kids', image: 'https://picsum.photos/seed/kids-wear/100/100' },
+      { id: 17, name: 'Winter Wear', icon: 'Winter', image: 'https://picsum.photos/seed/winter-wear/100/100' },
+      { id: 18, name: 'Sports', icon: 'Sports', image: 'https://picsum.photos/seed/sports/100/100' },
+      { id: 19, name: 'Watches', icon: 'Watches', image: 'https://picsum.photos/seed/watches/100/100' },
+      { id: 20, name: 'Luxe', icon: 'Luxe', image: 'https://picsum.photos/seed/luxe/100/100' },
+      { id: 21, name: 'Electronics', icon: 'Electronics', image: 'https://picsum.photos/seed/electronics/100/100' },
+      { id: 22, name: 'Gifts', icon: 'Gifts', image: 'https://picsum.photos/seed/gifts/100/100' },
     ];
     this.saveCategories(cats);
   },
 
   seedProducts() {
     const prods = [
-      { id: 1, name: 'Silk Evening Gown', brand: 'VERA MODA', category: 'Women Western', price: 24999, original: 34999, rating: 4.8, reviews: 234, badge: 'New Season', images: ['https://images.unsplash.com/photo-1566174053879-31528523f8ae?w=500&h=600&fit=crop','https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500&h=600&fit=crop'], description: 'Premium silk evening gown with elegant fall. Perfect for parties and weddings.', sizes: ['S','M','L','XL'], colors: ['Red','Black','Gold'], inStock: true },
-      { id: 2, name: 'Designer Lehenga Set', brand: 'MANGO', category: 'Women Ethnic', price: 45999, original: 65000, rating: 4.9, reviews: 189, badge: 'Best Seller', images: ['https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=500&h=600&fit=crop','https://images.unsplash.com/photo-1583391733956-6c78276477e1?w=500&h=600&fit=crop'], description: 'Beautiful designer lehenga with heavy embroidery and gota patti work.', sizes: ['M','L','XL'], colors: ['Red','Pink','Orange'], inStock: true },
-      { id: 3, name: 'Leather Shoulder Bag', brand: 'ZARA', category: 'Bags', price: 15999, original: 22500, rating: 4.7, reviews: 445, badge: 'Trending', images: ['https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=500&h=600&fit=crop','https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500&h=600&fit=crop'], description: 'Genuine leather shoulder bag with gold-plated hardware.', sizes: ['One Size'], colors: ['Brown','Black','Tan'], inStock: true },
-      { id: 4, name: 'Stiletto Heels Gold', brand: 'LOUIS VUITTON', category: 'Footwear', price: 18999, original: 28000, rating: 4.8, reviews: 312, badge: 'Premium', images: ['https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=500&h=600&fit=crop','https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=500&h=600&fit=crop'], description: 'Premium stiletto heels with crystal embellishments.', sizes: ['6','7','8','9'], colors: ['Gold','Silver','Black'], inStock: true },
-      { id: 5, name: 'Diamond Pendant Set', brand: 'TIFFANY', category: 'Jewellery', price: 125000, original: 159000, rating: 4.9, reviews: 89, badge: 'Luxe', images: ['https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=500&h=600&fit=crop','https://images.unsplash.com/photo-1515562141589-7e84135f0c7c?w=500&h=600&fit=crop'], description: '18K gold diamond pendant with matching earrings.', sizes: ['One Size'], colors: ['Gold','White'], inStock: true },
-      { id: 6, name: 'Floral Midi Dress', brand: 'H&M', category: 'Women Western', price: 8999, original: 12999, rating: 4.6, reviews: 567, badge: 'Sale', images: ['https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500&h=600&fit=crop','https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=500&h=600&fit=crop'], description: 'Floral printed midi dress with belt. Lightweight and comfortable.', sizes: ['XS','S','M','L'], colors: ['Blue','Pink','Yellow'], inStock: true },
-      { id: 7, name: 'Gold Plated Bracelet', brand: 'PANDORA', category: 'Accessories', price: 12999, original: 17999, rating: 4.7, reviews: 298, badge: 'Popular', images: ['https://images.unsplash.com/photo-1573408301185-9146fe634ad0?w=500&h=600&fit=crop','https://images.unsplash.com/photo-1605100804763-247f67b3557e?w=500&h=600&fit=crop'], description: 'Gold plated charm bracelet with adjustable chain.', sizes: ['One Size'], colors: ['Gold','Rose Gold'], inStock: true },
-      { id: 8, name: 'Embroidered Kurta Set', brand: 'MANGO', category: 'Kurta Sets', price: 6999, original: 9999, rating: 4.5, reviews: 678, badge: 'Value', images: ['https://images.unsplash.com/photo-1583391733956-6c78276477e1?w=500&h=600&fit=crop','https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=500&h=600&fit=crop'], description: 'Hand embroidered kurta with churidar and dupatta set.', sizes: ['S','M','L','XL','XXL'], colors: ['White','Blue','Green'], inStock: true },
-      { id: 9, name: 'Denim Jacket', brand: 'LEVI\'S', category: 'Men', price: 4999, original: 7999, rating: 4.6, reviews: 890, badge: 'Trending', images: ['https://images.unsplash.com/photo-1576995853123-5a10305d93c0?w=500&h=600&fit=crop','https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500&h=600&fit=crop'], description: 'Classic denim jacket with button closure and chest pockets.', sizes: ['S','M','L','XL','XXL'], colors: ['Blue','Black','Grey'], inStock: true },
-      { id: 10, name: 'Designer Saree', brand: 'SIXTEEEN', category: 'Sarees', price: 15999, original: 25000, rating: 4.8, reviews: 456, badge: 'New', images: ['https://images.unsplash.com/photo-1610030469983-98e550d6193c?w=500&h=600&fit=crop','https://images.unsplash.com/photo-1583391733956-6c78276477e1?w=500&h=600&fit=crop'], description: 'Banarasi silk saree with zari border and heavy pallu.', sizes: ['Free Size'], colors: ['Red','Green','Blue'], inStock: true },
+      { id: 1, name: 'Silk Evening Gown', brand: 'VERA MODA', category: 'Women Western', price: 24999, original: 34999, rating: 4.8, reviews: 234, badge: 'New Season', images: ['https://picsum.photos/seed/silk-gown/400/500','https://picsum.photos/seed/silk-gown-2/400/500'], description: 'Premium silk evening gown with elegant fall. Perfect for parties and weddings.', sizes: ['S','M','L','XL'], colors: ['Red','Black','Gold'], inStock: true },
+      { id: 2, name: 'Designer Lehenga Set', brand: 'MANGO', category: 'Women Ethnic', price: 45999, original: 65000, rating: 4.9, reviews: 189, badge: 'Best Seller', images: ['https://picsum.photos/seed/lehenga/400/500','https://picsum.photos/seed/lehenga-2/400/500'], description: 'Beautiful designer lehenga with heavy embroidery and gota patti work.', sizes: ['M','L','XL'], colors: ['Red','Pink','Orange'], inStock: true },
+      { id: 3, name: 'Leather Shoulder Bag', brand: 'ZARA', category: 'Bags', price: 15999, original: 22500, rating: 4.7, reviews: 445, badge: 'Trending', images: ['https://picsum.photos/seed/shoulder-bag/400/500','https://picsum.photos/seed/bag-2/400/500'], description: 'Genuine leather shoulder bag with gold-plated hardware.', sizes: ['One Size'], colors: ['Brown','Black','Tan'], inStock: true },
     ];
     this.saveProducts(prods);
   },
 
   seedOrders() {
-    const orders = [
-      { id: 'ORD-MF001', customer: 'Priya Sharma', email: 'priya@email.com', items: [{ name: 'Silk Evening Gown', qty: 1, price: 24999 }], total: 24999, date: '28 Jun 2026', status: 'Delivered', address: '12 MG Road, Mumbai', phone: '9876543210', payment: 'COD' },
-      { id: 'ORD-MF002', customer: 'Ananya Gupta', email: 'ananya@email.com', items: [{ name: 'Designer Lehenga Set', qty: 1, price: 45999 }], total: 45999, date: '29 Jun 2026', status: 'Shipped', address: '45 Lajpat Nagar, Delhi', phone: '9876543211', payment: 'COD' },
-      { id: 'ORD-MF003', customer: 'Riya Patel', email: 'riya@email.com', items: [{ name: 'Leather Shoulder Bag', qty: 1, price: 15999 }], total: 15999, date: '30 Jun 2026', status: 'Processing', address: '78 Satellite Road, Ahmedabad', phone: '9876543212', payment: 'Online' },
-    ];
-    this.saveOrders(orders);
+    this.saveOrders([]);
   },
 
   seedUsers() {
     const users = [
-      { id: 'USR-001', name: 'Priya Sharma', email: 'priya@email.com', phone: '9876543210', password: 'user123', address: '12 MG Road', city: 'Mumbai', pincode: '400001', avatar: '', createdAt: '2026-01-15' },
-      { id: 'USR-002', name: 'Ananya Gupta', email: 'ananya@email.com', phone: '9876543211', password: 'user123', address: '45 Lajpat Nagar', city: 'Delhi', pincode: '110001', avatar: '', createdAt: '2026-02-20' },
+      { id: 'USR-001', name: 'Admin User', email: 'admin@mithila.store', phone: '9999999999', password: 'admin123', address: '', city: '', pincode: '', avatar: '', createdAt: '2026-01-01' },
     ];
     this.saveUsers(users);
   },
