@@ -1,14 +1,10 @@
 const DataStore = {
   init() {
-    const version = '2.0';
-    if (localStorage.getItem('mf_data_version') !== version) {
-      this.seedProducts();
-      this.seedOrders();
-      this.seedUsers();
-      this.seedCategories();
-      this.seedCoupons();
-      localStorage.setItem('mf_data_version', version);
-    }
+    if (!localStorage.getItem('mf_products')) this.seedProducts();
+    if (!localStorage.getItem('mf_orders')) this.seedOrders();
+    if (!localStorage.getItem('mf_users')) this.seedUsers();
+    if (!localStorage.getItem('mf_categories')) this.seedCategories();
+    if (!localStorage.getItem('mf_coupons')) this.seedCoupons();
     if (!localStorage.getItem('mf_banners')) this.seedBanners();
     if (!localStorage.getItem('mf_reviews')) localStorage.setItem('mf_reviews', '[]');
     if (!localStorage.getItem('mf_cart')) localStorage.setItem('mf_cart', '[]');
