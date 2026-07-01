@@ -19,15 +19,17 @@ try {
 function fbRef(path) { return fb ? fb.ref(path) : null; }
 
 function objToArray(obj) {
-  return obj ? Object.keys(obj).map(k => ({ ...obj[k], _key: k })) : [];
+  return obj ? Object.keys(obj).filter(k => obj[k]).map(k => ({ ...obj[k], _key: k })) : [];
 }
 
 function arrayToObj(arr) {
   const obj = {};
   if (!arr) return obj;
   arr.forEach(item => {
-    const key = item._key || item.id;
-    if (key) { obj[key] = { ...item }; delete obj[key]._key; }
+    const key = item._key;
+    if (key) { obj[key] = { ...item }; delete obj[key]._key; return; }
+    const strId = item.id !== undefined ? 'mf_' + item.id : null;
+    if (strId) { obj[strId] = { ...item }; }
   });
   return obj;
 }
@@ -46,40 +48,56 @@ const DataStore = {
 
     this._listen('products', (data) => {
       if (data.length) { this._cache.products = data; this._saveLocal('mf_products', data); }
-      if (this._cache.products.length === 0) this._cache.products = this._loadLocalOne('mf_products') || [];
+      const local = this._loadLocalOne('mf_products');
+      if (local && local.length && !data.length) this._fbSet('products', local);
+      if (this._cache.products.length === 0 && local) this._cache.products = local;
       if (this._cache.products.length === 0) this.seedProducts();
       this._notify('products');
     });
     this._listen('orders', (data) => {
       if (data.length) { this._cache.orders = data; this._saveLocal('mf_orders', data); }
+      const local = this._loadLocalOne('mf_orders');
+      if (local && local.length && !data.length) this._fbSet('orders', local);
+      if (this._cache.orders.length === 0 && local) this._cache.orders = local;
       this._notify('orders');
     });
     this._listen('users', (data) => {
       if (data.length) { this._cache.users = data; this._saveLocal('mf_users', data); }
-      if (this._cache.users.length === 0) this._cache.users = this._loadLocalOne('mf_users') || [];
+      const local = this._loadLocalOne('mf_users');
+      if (local && local.length && !data.length) this._fbSet('users', local);
+      if (this._cache.users.length === 0 && local) this._cache.users = local;
       if (this._cache.users.length === 0) this.seedUsers();
       this._notify('users');
     });
     this._listen('categories', (data) => {
       if (data.length) { this._cache.categories = data; this._saveLocal('mf_categories', data); }
-      if (this._cache.categories.length === 0) this._cache.categories = this._loadLocalOne('mf_categories') || [];
+      const local = this._loadLocalOne('mf_categories');
+      if (local && local.length && !data.length) this._fbSet('categories', local);
+      if (this._cache.categories.length === 0 && local) this._cache.categories = local;
       if (this._cache.categories.length === 0) this.seedCategories();
       this._notify('categories');
     });
     this._listen('coupons', (data) => {
       if (data.length) { this._cache.coupons = data; this._saveLocal('mf_coupons', data); }
-      if (this._cache.coupons.length === 0) this._cache.coupons = this._loadLocalOne('mf_coupons') || [];
+      const local = this._loadLocalOne('mf_coupons');
+      if (local && local.length && !data.length) this._fbSet('coupons', local);
+      if (this._cache.coupons.length === 0 && local) this._cache.coupons = local;
       if (this._cache.coupons.length === 0) this.seedCoupons();
       this._notify('coupons');
     });
     this._listen('banners', (data) => {
       if (data.length) { this._cache.banners = data; this._saveLocal('mf_banners', data); }
-      if (this._cache.banners.length === 0) this._cache.banners = this._loadLocalOne('mf_banners') || [];
+      const local = this._loadLocalOne('mf_banners');
+      if (local && local.length && !data.length) this._fbSet('banners', local);
+      if (this._cache.banners.length === 0 && local) this._cache.banners = local;
       if (this._cache.banners.length === 0) this.seedBanners();
       this._notify('banners');
     });
     this._listen('reviews', (data) => {
       if (data.length) { this._cache.reviews = data; this._saveLocal('mf_reviews', data); }
+      const local = this._loadLocalOne('mf_reviews');
+      if (local && local.length && !data.length) this._fbSet('reviews', local);
+      if (this._cache.reviews.length === 0 && local) this._cache.reviews = local;
       this._notify('reviews');
     });
   },
