@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mithila Fashions — Premium Fashion Store</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -11,13 +12,13 @@
   <nav class="navbar" id="navbar">
     <div class="logo" onclick="navigate('home')">MITHILA<span>.</span></div>
     <div class="nav-search">
-      <span class="search-icon">🔍</span>
+      <i class="fas fa-search search-icon"></i>
       <input type="text" placeholder="Search products..." id="searchInput" oninput="handleSearch(this.value)">
     </div>
     <div class="nav-actions">
-      <button class="nav-icon" id="wishlistBtn" onclick="showWishlist()">🤍</button>
-      <button class="nav-icon" onclick="toggleCart()">🛒<span class="cart-badge" id="cartBadge">0</span></button>
-      <button class="nav-icon" onclick="window.location='profile.html'">👤</button>
+      <button class="nav-icon" id="wishlistBtn" onclick="showWishlist()"><i class="far fa-heart"></i></button>
+      <button class="nav-icon" onclick="toggleCart()"><i class="fas fa-shopping-bag"></i><span class="cart-badge" id="cartBadge">0</span></button>
+      <button class="nav-icon" onclick="window.location='profile.html'"><i class="fas fa-user"></i></button>
       <button class="user-btn" id="authBtn" onclick="openAuth()">Sign In</button>
     </div>
   </nav>
@@ -30,7 +31,7 @@
   </section>
 
   <div class="coupon-strip" id="couponStrip">
-    <span>🎉 New User? Use Code <strong>NEWUSER</strong> — Get 30% OFF up to ₹1,500!</span>
+    <span><i class="fas fa-gift"></i> New User? Use Code <strong>NEWUSER</strong> — Get 30% OFF up to ₹1,500!</span>
   </div>
 
   <div class="categories-bar" id="categoriesBar"></div>
@@ -38,7 +39,7 @@
   <section class="products-section" id="products">
     <div class="section-header">
       <h2>Featured <strong>Products</strong></h2>
-      <button class="view-all" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">View All →</button>
+      <button class="view-all" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">View All <i class="fas fa-arrow-right"></i></button>
     </div>
     <div class="products-grid" id="productsGrid"></div>
   </section>

@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mithila Fashions — Admin Panel</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="../css/admin.css">
 </head>
 <body>
@@ -29,29 +30,29 @@
       </div>
       <nav class="sidebar-nav">
         <div class="sidebar-section">Main</div>
-        <button class="sidebar-item active" onclick="showPage('dashboard')"><span class="icon">📊</span> Dashboard</button>
-        <button class="sidebar-item" onclick="showPage('orders')"><span class="icon">📦</span> Orders <span class="badge" id="orderBadge">0</span></button>
-        <button class="sidebar-item" onclick="showPage('products')"><span class="icon">👗</span> Products</button>
-        <button class="sidebar-item" onclick="showPage('addproduct')"><span class="icon">➕</span> Add Product</button>
-        <button class="sidebar-item" onclick="showPage('categories')"><span class="icon">📁</span> Categories</button>
-        <button class="sidebar-item" onclick="showPage('users')"><span class="icon">👥</span> Users</button>
-        <button class="sidebar-item" onclick="showPage('coupons')"><span class="icon">🏷️</span> Coupons</button>
-        <button class="sidebar-item" onclick="showPage('banners')"><span class="icon">🎪</span> Banners</button>
-        <button class="sidebar-item" onclick="showPage('reviews')"><span class="icon">⭐</span> Reviews</button>
+        <button class="sidebar-item active" onclick="showPage('dashboard')"><span class="icon"><i class="fas fa-chart-bar"></i></span> Dashboard</button>
+        <button class="sidebar-item" onclick="showPage('orders')"><span class="icon"><i class="fas fa-box"></i></span> Orders <span class="badge" id="orderBadge">0</span></button>
+        <button class="sidebar-item" onclick="showPage('products')"><span class="icon"><i class="fas fa-tshirt"></i></span> Products</button>
+        <button class="sidebar-item" onclick="showPage('addproduct')"><span class="icon"><i class="fas fa-plus-circle"></i></span> Add Product</button>
+        <button class="sidebar-item" onclick="showPage('categories')"><span class="icon"><i class="fas fa-folder"></i></span> Categories</button>
+        <button class="sidebar-item" onclick="showPage('users')"><span class="icon"><i class="fas fa-users"></i></span> Users</button>
+        <button class="sidebar-item" onclick="showPage('coupons')"><span class="icon"><i class="fas fa-tag"></i></span> Coupons</button>
+        <button class="sidebar-item" onclick="showPage('banners')"><span class="icon"><i class="fas fa-images"></i></span> Banners</button>
+        <button class="sidebar-item" onclick="showPage('reviews')"><span class="icon"><i class="fas fa-star"></i></span> Reviews</button>
         <div class="sidebar-section" style="margin-top:15px">System</div>
-        <button class="sidebar-item" onclick="showPage('settings')"><span class="icon">⚙️</span> Settings</button>
-        <button class="sidebar-item" onclick="showPage('backup')"><span class="icon">💾</span> Backup</button>
-        <button class="sidebar-item" onclick="showPage('analytics')"><span class="icon">📈</span> Analytics</button>
-        <button class="sidebar-item" onclick="showPage('seo')"><span class="icon">🔍</span> SEO</button>
+        <button class="sidebar-item" onclick="showPage('settings')"><span class="icon"><i class="fas fa-cog"></i></span> Settings</button>
+        <button class="sidebar-item" onclick="showPage('backup')"><span class="icon"><i class="fas fa-database"></i></span> Backup</button>
+        <button class="sidebar-item" onclick="showPage('analytics')"><span class="icon"><i class="fas fa-chart-line"></i></span> Analytics</button>
+        <button class="sidebar-item" onclick="showPage('seo')"><span class="icon"><i class="fas fa-search"></i></span> SEO</button>
         <div class="sidebar-section" style="margin-top:15px">Content</div>
-        <button class="sidebar-item" onclick="showPage('pages')"><span class="icon">📄</span> Pages</button>
-        <button class="sidebar-item" onclick="showPage('brands')"><span class="icon">🏢</span> Brands</button>
-        <button class="sidebar-item" onclick="showPage('offers')"><span class="icon">🎯</span> Offers</button>
-        <button class="sidebar-item" onclick="showPage('newsletter')"><span class="icon">📧</span> Newsletter</button>
-        <button class="sidebar-item" onclick="showPage('support')"><span class="icon">🎧</span> Support</button>
-        <button class="sidebar-item" onclick="showPage('shipping')"><span class="icon">🚚</span> Shipping</button>
+        <button class="sidebar-item" onclick="showPage('pages')"><span class="icon"><i class="fas fa-file-alt"></i></span> Pages</button>
+        <button class="sidebar-item" onclick="showPage('brands')"><span class="icon"><i class="fas fa-building"></i></span> Brands</button>
+        <button class="sidebar-item" onclick="showPage('offers')"><span class="icon"><i class="fas fa-bullseye"></i></span> Offers</button>
+        <button class="sidebar-item" onclick="showPage('newsletter')"><span class="icon"><i class="fas fa-envelope"></i></span> Newsletter</button>
+        <button class="sidebar-item" onclick="showPage('support')"><span class="icon"><i class="fas fa-headset"></i></span> Support</button>
+        <button class="sidebar-item" onclick="showPage('shipping')"><span class="icon"><i class="fas fa-truck"></i></span> Shipping</button>
         <div class="sidebar-section" style="margin-top:15px">Account</div>
-        <button class="sidebar-item" onclick="handleLogout()"><span class="icon">🚪</span> Logout</button>
+        <button class="sidebar-item" onclick="handleLogout()"><span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout</button>
       </nav>
     </aside>
 

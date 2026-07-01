@@ -12,6 +12,25 @@ function formatPrice(n) {
   return '₹' + Number(n).toLocaleString('en-IN');
 }
 
+function playSuccessSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const notes = [523.25, 659.25, 783.99];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.15);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.15 + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + i * 0.15);
+      osc.stop(ctx.currentTime + i * 0.15 + 0.4);
+    });
+  } catch(e) {}
+}
+
 function showToast(msg, type = 'gold') {
   const old = $('.toast');
   if (old) old.remove();
@@ -24,6 +43,14 @@ function showToast(msg, type = 'gold') {
 
 function navigate(page) {
   if (page === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateCouponStrip() {
+  const strip = document.getElementById('couponStrip');
+  if (strip) {
+    const text = localStorage.getItem('mf_coupon_text');
+    if (text) strip.innerHTML = '<span><i class="fas fa-gift"></i> ' + text + '</span>';
+  }
 }
 
 function renderBanners() {
@@ -47,9 +74,19 @@ function renderBanners() {
   startSlideShow();
 }
 
+function getSlideTime() {
+  return parseInt(localStorage.getItem('mf_slide_time')) || 4000;
+}
+
+function getSlideAutoplay() {
+  return localStorage.getItem('mf_slide_autoplay') !== 'false';
+}
+
 function startSlideShow() {
   if (slideInterval) clearInterval(slideInterval);
-  slideInterval = setInterval(() => slideBanner(1), 4000);
+  if (getSlideAutoplay()) {
+    slideInterval = setInterval(() => slideBanner(1), getSlideTime());
+  }
 }
 
 function slideBanner(dir) {
@@ -104,7 +141,7 @@ function renderProducts(search) {
     prods = prods.filter(p => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
   }
   if (prods.length === 0) {
-    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--mid-grey)"><div style="font-size:60px;margin-bottom:20px">📦</div><h3>No products found</h3></div>';
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--mid-grey)"><div style="font-size:60px;margin-bottom:20px"><i class="fas fa-box-open"></i></div><h3>No products found</h3></div>';
     return;
   }
   grid.innerHTML = prods.map((p, i) => `
@@ -281,7 +318,7 @@ function renderCartDrawer() {
   const totalEl = $('#cartTotal');
   if (!container) return;
   if (cartItems.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--mid-grey)"><div style="font-size:50px;margin-bottom:15px">🛍️</div><p>Your bag is empty</p></div>';
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--mid-grey)"><div style="font-size:50px;margin-bottom:15px"><i class="fas fa-shopping-bag"></i></div><p>Your bag is empty</p></div>';
     if (totalEl) totalEl.textContent = '₹0';
     return;
   }
@@ -379,7 +416,7 @@ function logout() {
 function updateUserUI() {
   const btn = $('#authBtn');
   if (!btn) return;
-  if (currentUser) { btn.textContent = `👋 ${currentUser.name.split(' ')[0]}`; btn.onclick = logout; }
+  if (currentUser) { btn.textContent = 'Sign Out'; btn.onclick = logout; }
   else { btn.textContent = 'Sign In'; btn.onclick = openAuth; }
 }
 
@@ -387,6 +424,7 @@ window.addEventListener('scroll', () => $('#navbar').classList.toggle('scrolled'
 
 document.addEventListener('DOMContentLoaded', () => {
   updateUserUI();
+  updateCouponStrip();
   renderBanners();
   renderCategories();
   renderProducts();

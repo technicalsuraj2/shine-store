@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Profile — Mithila Fashions</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
   <style>
     .profile-page { margin-top: 70px; max-width: 900px; margin-left: auto; margin-right: auto; padding: 30px; }
@@ -67,26 +68,19 @@
       <div class="profile-stats" id="profileStats"></div>
 
       <div class="profile-grid">
-        <div class="profile-btn" onclick="window.location='index.html'"><div class="profile-btn-icon">🏠</div><div class="profile-btn-label">Home</div></div>
-        <div class="profile-btn" onclick="scrollToOrders()"><div class="profile-btn-icon">📦</div><div class="profile-btn-label">My Orders</div></div>
-        <div class="profile-btn" onclick="viewWishlist()"><div class="profile-btn-icon">❤️</div><div class="profile-btn-label">Wishlist</div></div>
-        <div class="profile-btn" onclick="viewCart()"><div class="profile-btn-icon">🛒</div><div class="profile-btn-label">Cart</div></div>
-        <div class="profile-btn" onclick="alert('All orders are COD currently')"><div class="profile-btn-icon">💳</div><div class="profile-btn-label">Payments</div></div>
-        <div class="profile-btn" onclick="alert('Shipping address: Saved')"><div class="profile-btn-icon">📍</div><div class="profile-btn-label">Addresses</div></div>
-        <div class="profile-btn" onclick="alert('Profile settings coming soon')"><div class="profile-btn-icon">⚙️</div><div class="profile-btn-label">Settings</div></div>
-        <div class="profile-btn" onclick="alert('No notifications')"><div class="profile-btn-icon">🔔</div><div class="profile-btn-label">Notifications</div></div>
-        <div class="profile-btn" onclick="alert('Coming soon!')"><div class="profile-btn-icon">⭐</div><div class="profile-btn-label">Reviews</div></div>
-        <div class="profile-btn" onclick="alert('Track your orders here')"><div class="profile-btn-icon">🚚</div><div class="profile-btn-label">Track Order</div></div>
-        <div class="profile-btn" onclick="alert('Coupons & offers page')"><div class="profile-btn-icon">🏷️</div><div class="profile-btn-label">Offers</div></div>
-        <div class="profile-btn" onclick="alert('Coming soon!')"><div class="profile-btn-icon">🎁</div><div class="profile-btn-label">Gift Cards</div></div>
-        <div class="profile-btn" onclick="alert('Refer a friend & earn!')"><div class="profile-btn-icon">👥</div><div class="profile-btn-label">Refer & Earn</div></div>
-        <div class="profile-btn" onclick="alert('Download our app - coming soon')"><div class="profile-btn-icon">📱</div><div class="profile-btn-label">Download App</div></div>
-        <div class="profile-btn" onclick="alert('Help center')"><div class="profile-btn-icon">❓</div><div class="profile-btn-label">Help</div></div>
-        <div class="profile-btn" onclick="alert('Chat with us - coming soon')"><div class="profile-btn-icon">💬</div><div class="profile-btn-label">Live Chat</div></div>
-        <div class="profile-btn" onclick="alert('FAQs')"><div class="profile-btn-icon">📖</div><div class="profile-btn-label">FAQs</div></div>
-        <div class="profile-btn" onclick="alert('Return policy: 7 days')"><div class="profile-btn-icon">↩️</div><div class="profile-btn-label">Returns</div></div>
-        <div class="profile-btn" onclick="logoutProfile()"><div class="profile-btn-icon">🚪</div><div class="profile-btn-label">Logout</div></div>
-        <div class="profile-btn" onclick="DataStore.clearAllData();alert('Data reset to defaults');location.reload()"><div class="profile-btn-icon">🔄</div><div class="profile-btn-label">Reset Data</div></div>
+        <div class="profile-btn" onclick="window.location='index.html'"><div class="profile-btn-icon"><i class="fas fa-home"></i></div><div class="profile-btn-label">Home</div></div>
+        <div class="profile-btn" onclick="scrollToOrders()"><div class="profile-btn-icon"><i class="fas fa-box"></i></div><div class="profile-btn-label">My Orders</div></div>
+        <div class="profile-btn" onclick="viewWishlist()"><div class="profile-btn-icon"><i class="fas fa-heart"></i></div><div class="profile-btn-label">Wishlist</div></div>
+        <div class="profile-btn" onclick="viewCart()"><div class="profile-btn-icon"><i class="fas fa-shopping-cart"></i></div><div class="profile-btn-label">Cart</div></div>
+        <div class="profile-btn" onclick="alert('All orders are COD currently')"><div class="profile-btn-icon"><i class="fas fa-credit-card"></i></div><div class="profile-btn-label">Payments</div></div>
+        <div class="profile-btn" onclick="alert('Shipping address: Saved')"><div class="profile-btn-icon"><i class="fas fa-map-marker-alt"></i></div><div class="profile-btn-label">Addresses</div></div>
+        <div class="profile-btn" onclick="alert('Profile settings coming soon')"><div class="profile-btn-icon"><i class="fas fa-cog"></i></div><div class="profile-btn-label">Settings</div></div>
+        <div class="profile-btn" onclick="alert('No notifications')"><div class="profile-btn-icon"><i class="fas fa-bell"></i></div><div class="profile-btn-label">Notifications</div></div>
+        <div class="profile-btn" onclick="scrollToOrders()"><div class="profile-btn-icon"><i class="fas fa-truck"></i></div><div class="profile-btn-label">Track Order</div></div>
+        <div class="profile-btn" onclick="alert('Coupons & offers page')"><div class="profile-btn-icon"><i class="fas fa-tag"></i></div><div class="profile-btn-label">Offers</div></div>
+        <div class="profile-btn" onclick="alert('Help center')"><div class="profile-btn-icon"><i class="fas fa-question-circle"></i></div><div class="profile-btn-label">Help</div></div>
+        <div class="profile-btn" onclick="alert('FAQs')"><div class="profile-btn-icon"><i class="fas fa-book"></i></div><div class="profile-btn-label">FAQs</div></div>
+        <div class="profile-btn" onclick="logoutProfile()"><div class="profile-btn-icon"><i class="fas fa-sign-out-alt"></i></div><div class="profile-btn-label">Logout</div></div>
       </div>
 
       <div class="profile-orders" id="ordersSection">
@@ -131,12 +125,18 @@
       if (orders.length === 0) {
         ordersContainer.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><p>No orders yet</p><button class="submit-btn" style="width:auto;padding:10px 30px;display:inline-block;margin-top:15px" onclick="window.location=\'index.html\'">Start Shopping</button></div>';
       } else {
+        const statusIcons = { 'Pending': '<i class="fas fa-clock" style="color:#F57F17"></i>', 'Processing': '<i class="fas fa-spinner" style="color:#1565C0"></i>', 'Shipped': '<i class="fas fa-truck" style="color:#7B1FA2"></i>', 'Delivered': '<i class="fas fa-check-circle" style="color:#2E7D32"></i>', 'Cancelled': '<i class="fas fa-times-circle" style="color:#C62828"></i>' };
+        const statusLabels = { 'Pending': 'Pending — we\'ve received your order', 'Processing': 'Processing — your order is being prepared', 'Shipped': 'Shipped — on the way! 🚚', 'Delivered': 'Delivered — thank you!', 'Cancelled': 'Cancelled' };
         ordersContainer.innerHTML = orders.map(o => `
           <div class="order-card">
             <div>
               <div class="order-card-id">${o.id}</div>
               <div style="font-size:12px;color:var(--mid-grey)">${o.items.map(i => i.name + ' × ' + i.qty).join(', ')}</div>
               <div style="font-size:12px;color:var(--mid-grey)">${o.date}</div>
+              <div style="margin-top:6px;font-size:13px">
+                ${statusIcons[o.status] || ''} <strong>${o.status}</strong>
+                <span style="color:var(--mid-grey);font-size:11px;display:block">${statusLabels[o.status] || ''}</span>
+              </div>
             </div>
             <div style="text-align:right">
               <div class="order-card-total">₹${(o.total || 0).toLocaleString('en-IN')}</div>

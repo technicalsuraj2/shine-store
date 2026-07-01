@@ -381,29 +381,103 @@ function deleteCoupon(id) {
 
 function renderBanners() {
   const banners = DataStore.getBanners();
+  const slideTime = localStorage.getItem('mf_slide_time') || '4000';
+  const couponText = localStorage.getItem('mf_coupon_text') || 'New User? Use Code NEWUSER — Get 30% OFF up to ₹1,500!';
   document.getElementById('bannersTable').innerHTML = banners.map(b => `
     <tr>
       <td><strong>${b.title}</strong></td>
       <td>${b.subtitle}</td>
+      <td>${b.image ? '<i class="fas fa-check-circle" style="color:var(--green)"></i>' : '<i class="fas fa-times-circle" style="color:var(--red)"></i>'}</td>
       <td><span style="display:inline-block;width:30px;height:20px;background:${b.bg};border:1px solid #ddd;vertical-align:middle"></span> ${b.bg}</td>
-      <td>${b.active ? '✅ Active' : '❌ Inactive'}</td>
+      <td>${b.active ? '<span style="color:var(--green)"><i class="fas fa-check-circle"></i> Active</span>' : '<span style="color:var(--red)"><i class="fas fa-times-circle"></i> Inactive</span>'}</td>
       <td>
-        <button class="action-btn btn-sm" onclick="editBanner(${b.id})">✏️</button>
+        <button class="action-btn btn-sm" onclick="editBanner(${b.id})"><i class="fas fa-edit"></i></button>
         <button class="action-btn btn-sm" onclick="toggleBanner(${b.id})">${b.active ? 'Disable' : 'Enable'}</button>
-        <button class="action-btn btn-sm" onclick="deleteBanner(${b.id})">🗑️</button>
+        <button class="action-btn btn-sm" onclick="deleteBanner(${b.id})"><i class="fas fa-trash"></i></button>
       </td>
     </tr>
   `).join('');
+  document.getElementById('bannersTable').insertAdjacentHTML('beforebegin', `
+    <div class="card" style="margin-bottom:20px">
+      <div class="card-header"><h3><i class="fas fa-sliders-h"></i> Slideshow Controls</h3></div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Slide Interval (seconds)</label>
+            <input type="number" id="slideTimeInput" value="${parseInt(slideTime)/1000}" min="1" max="30" step="1">
+          </div>
+          <div class="form-group">
+            <label>Auto-play</label>
+            <select id="slideAutoplay"><option value="true" ${localStorage.getItem('mf_slide_autoplay') !== 'false' ? 'selected' : ''}>Enabled</option><option value="false" ${localStorage.getItem('mf_slide_autoplay') === 'false' ? 'selected' : ''}>Disabled</option></select>
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label><i class="fas fa-gift"></i> Coupon Strip Text</label>
+            <input type="text" id="couponTextInput" value="${couponText.replace(/"/g, '&quot;')}" placeholder="New User? Use Code NEWUSER...">
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <button class="btn btn-black" onclick="saveSlideControls()"><i class="fas fa-save"></i> Save Slideshow Settings</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `);
+}
+
+function saveSlideControls() {
+  const time = parseInt(document.getElementById('slideTimeInput').value) * 1000;
+  if (time < 1000) { alert('Minimum 1 second'); return; }
+  localStorage.setItem('mf_slide_time', time.toString());
+  localStorage.setItem('mf_slide_autoplay', document.getElementById('slideAutoplay').value);
+  const coupon = document.getElementById('couponTextInput').value;
+  localStorage.setItem('mf_coupon_text', coupon);
+  alert('<i class="fas fa-check-circle"></i> Slideshow settings saved!');
+  renderBanners();
 }
 
 function addBanner() {
-  const title = prompt('Banner title:');
-  if (!title) return;
-  const subtitle = prompt('Banner subtitle:');
-  const bg = prompt('Background color (hex):', '#FF6B6B');
+  const d = document.createElement('div');
+  d.innerHTML = `
+    <div class="modal-overlay" style="display:flex;z-index:9999" id="bannerModal">
+      <div class="modal" style="max-width:500px">
+        <div class="modal-header"><h3><i class="fas fa-plus-circle"></i> Add Banner</h3><button class="modal-close" onclick="this.closest(\\'.modal-overlay\\').remove()"><i class="fas fa-times"></i></button></div>
+        <div class="modal-body">
+          <div class="form-group"><label>Title</label><input type="text" id="bannerTitle"></div>
+          <div class="form-group"><label>Subtitle</label><input type="text" id="bannerSubtitle"></div>
+          <div class="form-group"><label>Background Color</label><input type="color" id="bannerBg" value="#FF6B6B"></div>
+          <div class="form-group"><label>Banner Image</label><input type="file" id="bannerImageInput" accept="image/*" onchange="previewBannerImage(event)"><br><small style="color:var(--mid-grey)">Optional — leave empty to show gradient</small><div id="bannerPreview" style="margin-top:10px"></div></div>
+          <button class="btn btn-black" onclick="saveBanner()"><i class="fas fa-save"></i> Save Banner</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(d.firstElementChild);
+  window._bannerImage = '';
+}
+
+let _bannerImage = '';
+
+function previewBannerImage(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { alert('Image too large (max 2MB)'); return; }
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    _bannerImage = ev.target.result;
+    document.getElementById('bannerPreview').innerHTML = '<img src="'+ev.target.result+'" style="max-width:100%;max-height:150px;object-fit:cover">';
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveBanner() {
+  const title = document.getElementById('bannerTitle').value;
+  if (!title) { alert('Title is required'); return; }
+  const subtitle = document.getElementById('bannerSubtitle').value || '';
+  const bg = document.getElementById('bannerBg').value || '#FF6B6B';
   const banners = DataStore.getBanners();
-  banners.push({ id: Date.now(), image: '', title, subtitle: subtitle || '', link: '#', bg: bg || '#FF6B6B', active: true });
+  banners.push({ id: Date.now(), image: _bannerImage || '', title, subtitle, link: '#', bg, active: true });
   DataStore.saveBanners(banners);
+  _bannerImage = '';
+  document.getElementById('bannerModal')?.remove();
   renderBanners();
 }
 
@@ -411,12 +485,40 @@ function editBanner(id) {
   const banners = DataStore.getBanners();
   const b = banners.find(x => x.id === id);
   if (!b) return;
-  const title = prompt('Title:', b.title);
-  if (!title) return;
+  _bannerImage = b.image || '';
+  const div = document.createElement('div');
+  div.innerHTML = `
+    <div class="modal-overlay" style="display:flex;z-index:9999" id="bannerModal">
+      <div class="modal" style="max-width:500px">
+        <div class="modal-header"><h3><i class="fas fa-edit"></i> Edit Banner</h3><button class="modal-close" onclick="this.closest(\\'.modal-overlay\\').remove()"><i class="fas fa-times"></i></button></div>
+        <div class="modal-body">
+          <div class="form-group"><label>Title</label><input type="text" id="bannerTitle" value="${b.title.replace(/"/g, '&quot;')}"></div>
+          <div class="form-group"><label>Subtitle</label><input type="text" id="bannerSubtitle" value="${b.subtitle.replace(/"/g, '&quot;')}"></div>
+          <div class="form-group"><label>Background Color</label><input type="color" id="bannerBg" value="${b.bg}"></div>
+          <div class="form-group"><label>Banner Image</label><input type="file" accept="image/*" onchange="previewBannerImage(event)"><br><small style="color:var(--mid-grey)">Leave empty to keep current image</small><div id="bannerPreview">${b.image ? '<img src="'+b.image+'" style="max-width:100%;max-height:150px;object-fit:cover">' : ''}</div></div>
+          <input type="hidden" id="bannerEditId" value="${b.id}">
+          <button class="btn btn-black" onclick="updateBanner()"><i class="fas fa-save"></i> Update Banner</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(div.firstElementChild);
+}
+
+function updateBanner() {
+  const id = parseInt(document.getElementById('bannerEditId').value);
+  const title = document.getElementById('bannerTitle').value;
+  if (!title) { alert('Title is required'); return; }
+  const banners = DataStore.getBanners();
+  const b = banners.find(x => x.id === id);
+  if (!b) return;
   b.title = title;
-  b.subtitle = prompt('Subtitle:', b.subtitle) || '';
-  b.bg = prompt('Background color:', b.bg) || '#FF6B6B';
+  b.subtitle = document.getElementById('bannerSubtitle').value || '';
+  b.bg = document.getElementById('bannerBg').value || '#FF6B6B';
+  if (_bannerImage) b.image = _bannerImage;
   DataStore.saveBanners(banners);
+  _bannerImage = '';
+  document.getElementById('bannerModal')?.remove();
   renderBanners();
 }
 
