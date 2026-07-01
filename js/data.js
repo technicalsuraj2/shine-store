@@ -45,43 +45,41 @@ const DataStore = {
     if (!fb) return;
 
     this._listen('products', (data) => {
-      this._cache.products = data;
-      this._saveLocal('mf_products', data);
-      if (data.length === 0) this.seedProducts();
+      if (data.length) { this._cache.products = data; this._saveLocal('mf_products', data); }
+      if (this._cache.products.length === 0) this._cache.products = this._loadLocalOne('mf_products') || [];
+      if (this._cache.products.length === 0) this.seedProducts();
       this._notify('products');
     });
     this._listen('orders', (data) => {
-      this._cache.orders = data;
-      this._saveLocal('mf_orders', data);
+      if (data.length) { this._cache.orders = data; this._saveLocal('mf_orders', data); }
       this._notify('orders');
     });
     this._listen('users', (data) => {
-      this._cache.users = data;
-      this._saveLocal('mf_users', data);
-      if (data.length === 0) this.seedUsers();
+      if (data.length) { this._cache.users = data; this._saveLocal('mf_users', data); }
+      if (this._cache.users.length === 0) this._cache.users = this._loadLocalOne('mf_users') || [];
+      if (this._cache.users.length === 0) this.seedUsers();
       this._notify('users');
     });
     this._listen('categories', (data) => {
-      this._cache.categories = data;
-      this._saveLocal('mf_categories', data);
-      if (data.length === 0) this.seedCategories();
+      if (data.length) { this._cache.categories = data; this._saveLocal('mf_categories', data); }
+      if (this._cache.categories.length === 0) this._cache.categories = this._loadLocalOne('mf_categories') || [];
+      if (this._cache.categories.length === 0) this.seedCategories();
       this._notify('categories');
     });
     this._listen('coupons', (data) => {
-      this._cache.coupons = data;
-      this._saveLocal('mf_coupons', data);
-      if (data.length === 0) this.seedCoupons();
+      if (data.length) { this._cache.coupons = data; this._saveLocal('mf_coupons', data); }
+      if (this._cache.coupons.length === 0) this._cache.coupons = this._loadLocalOne('mf_coupons') || [];
+      if (this._cache.coupons.length === 0) this.seedCoupons();
       this._notify('coupons');
     });
     this._listen('banners', (data) => {
-      this._cache.banners = data;
-      this._saveLocal('mf_banners', data);
-      if (data.length === 0) this.seedBanners();
+      if (data.length) { this._cache.banners = data; this._saveLocal('mf_banners', data); }
+      if (this._cache.banners.length === 0) this._cache.banners = this._loadLocalOne('mf_banners') || [];
+      if (this._cache.banners.length === 0) this.seedBanners();
       this._notify('banners');
     });
     this._listen('reviews', (data) => {
-      this._cache.reviews = data;
-      this._saveLocal('mf_reviews', data);
+      if (data.length) { this._cache.reviews = data; this._saveLocal('mf_reviews', data); }
       this._notify('reviews');
     });
   },
@@ -104,6 +102,10 @@ const DataStore = {
 
   _saveLocal(key, arr) {
     try { localStorage.setItem(key, JSON.stringify(arr)); } catch(e) {}
+  },
+
+  _loadLocalOne(key) {
+    try { const d = JSON.parse(localStorage.getItem(key)); return Array.isArray(d) ? d : null; } catch(e) { return null; }
   },
 
   _loadLocal() {
