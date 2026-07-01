@@ -662,6 +662,14 @@ function initAdmin() {
   updateClock();
 }
 
+DataStore.on('products', () => { if (isLoggedIn) { renderProducts(); renderDashboard(); renderBrands(); } });
+DataStore.on('orders', () => { if (isLoggedIn) { renderOrders(); renderDashboard(); } });
+DataStore.on('users', () => { if (isLoggedIn) renderUsers(); });
+DataStore.on('categories', () => { if (isLoggedIn) { renderCategories(); updateCategorySelects(); } });
+DataStore.on('coupons', () => { if (isLoggedIn) renderCoupons(); });
+DataStore.on('banners', () => { if (isLoggedIn) renderBanners(); });
+DataStore.on('reviews', () => { if (isLoggedIn) renderReviews(); });
+
 document.addEventListener('DOMContentLoaded', () => {
   if (localStorage.getItem('mf_admin_logged')) {
     isLoggedIn = true;

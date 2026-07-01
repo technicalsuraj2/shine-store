@@ -40,10 +40,9 @@ const DataStore = {
     const sessionKeys = ['mf_cart', 'mf_wishlist', 'mf_current_user', 'mf_admin_pass', 'mf_admin_logged', 'mf_coupon_text', 'mf_slide_time', 'mf_slide_autoplay'];
     sessionKeys.forEach(k => { if (!localStorage.getItem(k)) { if (k === 'mf_cart') localStorage.setItem(k, '[]'); else if (k === 'mf_wishlist') localStorage.setItem(k, '[]'); } });
 
-    if (!fb) {
-      this._loadLocal();
-      return;
-    }
+    this._loadLocal();
+
+    if (!fb) return;
 
     this._listen('products', (data) => {
       this._cache.products = data;

@@ -477,6 +477,11 @@ function updateUserUI() {
 
 window.addEventListener('scroll', () => $('#navbar').classList.toggle('scrolled', window.scrollY > 50));
 
+DataStore.on('products', () => renderProducts($('#searchInput')?.value || ''));
+DataStore.on('banners', () => { renderBanners(); startSlideShow(); });
+DataStore.on('categories', () => renderCategories());
+DataStore.on('orders', () => { if (typeof renderCartDrawer === 'function') renderCartDrawer(); });
+
 document.addEventListener('DOMContentLoaded', () => {
   updateUserUI();
   updateCouponStrip();

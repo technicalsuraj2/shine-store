@@ -130,6 +130,8 @@
 
   <script src="js/data.js"></script>
   <script>
+    DataStore.on('orders', () => { if (currentUser) window.location.reload(); });
+
     let currentUser = null;
     try {
       const raw = localStorage.getItem('mf_current_user');
