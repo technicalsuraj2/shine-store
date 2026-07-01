@@ -176,7 +176,7 @@ function goToCheckout() {
   if (cartItems.length === 0) { showToast('Your bag is empty!', 'error'); return; }
   if (!currentUser) { showToast('Please sign in first!', 'error'); openAuth(); return; }
   toggleCart();
-  window.location.href = '/checkout.html';
+  window.location.href = 'checkout.html';
 }
 
 // ===== WISHLIST =====

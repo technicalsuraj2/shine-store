@@ -17,10 +17,10 @@ const DataStore = {
   // ----- PRODUCTS -----
   getProducts() { return JSON.parse(localStorage.getItem('pf_products')); },
   saveProducts(p) { localStorage.setItem('pf_products', JSON.stringify(p)); },
-  getProduct(id) { return this.getProducts().find(p => p.id === id); },
+  getProduct(id) { const prods = this.getProducts(); return prods ? prods.find(p => p.id === id) : null; },
 
   addProduct(p) {
-    const prods = this.getProducts();
+    const prods = this.getProducts() || [];
     p.id = Date.now();
     prods.push(p);
     this.saveProducts(prods);
@@ -28,26 +28,26 @@ const DataStore = {
   },
 
   updateProduct(id, data) {
-    const prods = this.getProducts();
+    const prods = this.getProducts() || [];
     const idx = prods.findIndex(p => p.id === id);
     if (idx > -1) { Object.assign(prods[idx], data); this.saveProducts(prods); return prods[idx]; }
     return null;
   },
 
   deleteProduct(id) {
-    let prods = this.getProducts();
+    let prods = this.getProducts() || [];
     prods = prods.filter(p => p.id !== id);
     this.saveProducts(prods);
   },
 
   // ----- CATEGORIES -----
-  getCategories() { return JSON.parse(localStorage.getItem('pf_categories')); },
+  getCategories() { return JSON.parse(localStorage.getItem('pf_categories')) || []; },
   saveCategories(c) { localStorage.setItem('pf_categories', JSON.stringify(c)); },
 
   // ----- ORDERS -----
-  getOrders() { return JSON.parse(localStorage.getItem('pf_orders')); },
+  getOrders() { return JSON.parse(localStorage.getItem('pf_orders')) || []; },
   saveOrders(o) { localStorage.setItem('pf_orders', JSON.stringify(o)); },
-  getOrder(id) { return this.getOrders().find(o => o.id === id); },
+  getOrder(id) { const orders = this.getOrders(); return orders.find(o => o.id === id); },
 
   addOrder(order) {
     const orders = this.getOrders();
@@ -67,7 +67,7 @@ const DataStore = {
   },
 
   // ----- USERS -----
-  getUsers() { return JSON.parse(localStorage.getItem('pf_users')); },
+  getUsers() { return JSON.parse(localStorage.getItem('pf_users')) || []; },
   saveUsers(u) { localStorage.setItem('pf_users', JSON.stringify(u)); },
 
   registerUser(u) {
@@ -90,14 +90,56 @@ const DataStore = {
   },
 
   // ----- COUPONS -----
-  getCoupons() { return JSON.parse(localStorage.getItem('pf_coupons')); },
+  getCoupons() { return JSON.parse(localStorage.getItem('pf_coupons')) || []; },
   saveCoupons(c) { localStorage.setItem('pf_coupons', JSON.stringify(c)); },
 
   // ----- CART -----
-  getCart() { return JSON.parse(localStorage.getItem('pf_cart')); },
+  getCart() { return JSON.parse(localStorage.getItem('pf_cart')) || []; },
   saveCart(c) { localStorage.setItem('pf_cart', JSON.stringify(c)); },
-  getWishlist() { return JSON.parse(localStorage.getItem('pf_wishlist')); },
+  getWishlist() { return JSON.parse(localStorage.getItem('pf_wishlist')) || []; },
   saveWishlist(w) { localStorage.setItem('pf_wishlist', JSON.stringify(w)); },
+
+  // ----- BACKUP / RESTORE -----
+  exportData() {
+    return {
+      products: this.getProducts(),
+      orders: this.getOrders(),
+      users: this.getUsers(),
+      categories: this.getCategories(),
+      coupons: this.getCoupons(),
+      reviews: JSON.parse(localStorage.getItem('pf_reviews') || '[]'),
+      wishlist: JSON.parse(localStorage.getItem('pf_wishlist') || '[]'),
+      exportedAt: new Date().toISOString()
+    };
+  },
+
+  importData(data) {
+    if (!data || !data.products) return { error: 'Invalid backup file' };
+    try {
+      this.saveProducts(data.products);
+      this.saveOrders(data.orders || []);
+      this.saveUsers(data.users || []);
+      this.saveCategories(data.categories || []);
+      this.saveCoupons(data.coupons || []);
+      localStorage.setItem('pf_reviews', JSON.stringify(data.reviews || []));
+      localStorage.setItem('pf_wishlist', JSON.stringify(data.wishlist || []));
+      return { success: true };
+    } catch(e) {
+      return { error: e.message };
+    }
+  },
+
+  clearAllData() {
+    localStorage.removeItem('pf_products');
+    localStorage.removeItem('pf_orders');
+    localStorage.removeItem('pf_users');
+    localStorage.removeItem('pf_categories');
+    localStorage.removeItem('pf_coupons');
+    localStorage.removeItem('pf_reviews');
+    localStorage.removeItem('pf_wishlist');
+    localStorage.removeItem('pf_cart');
+    this.init();
+  },
 
   // ----- STATS -----
   getStats() {

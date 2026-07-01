@@ -1,14 +1,19 @@
 // ===== ADMIN AUTH =====
 const ADMIN_USER = 'admin';
-const ADMIN_PASS = 'admin123';
+const DEFAULT_PASS = 'admin123';
 let isLoggedIn = false;
+
+function getAdminPass() {
+  return localStorage.getItem('pf_admin_pass') || DEFAULT_PASS;
+}
 
 function handleAdminLogin(e) {
   e.preventDefault();
   const u = document.getElementById('adminUser').value;
   const p = document.getElementById('adminPass').value;
-  if (u === ADMIN_USER && p === ADMIN_PASS) {
+  if (u === ADMIN_USER && p === getAdminPass()) {
     isLoggedIn = true;
+    localStorage.setItem('pf_admin_logged', 'true');
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appMain').style.display = 'flex';
     initAdmin();
@@ -19,6 +24,7 @@ function handleAdminLogin(e) {
 
 function handleLogout() {
   isLoggedIn = false;
+  localStorage.removeItem('pf_admin_logged');
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('appMain').style.display = 'none';
 }
@@ -265,10 +271,66 @@ function addCoupon() {
 function saveSettings() {
   const pass = document.getElementById('setNewPass').value;
   if (pass) {
-    alert('Password updated (demo feature)');
+    if (pass.length < 4) {
+      alert('Password must be at least 4 characters');
+      return;
+    }
+    localStorage.setItem('pf_admin_pass', pass);
     document.getElementById('setNewPass').value = '';
+    alert('✅ Admin password updated successfully!');
+  } else {
+    alert('Settings saved!');
   }
-  alert('Settings saved!');
+}
+
+// ===== BACKUP & RESTORE =====
+function exportBackup() {
+  const data = DataStore.exportData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `shine-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  alert('✅ Backup downloaded successfully!');
+}
+
+function importBackup(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      const result = DataStore.importData(data);
+      if (result.error) { alert('❌ ' + result.error); return; }
+      alert('✅ Data imported successfully! Refreshing...');
+      renderDashboard();
+      renderOrders();
+      renderProducts();
+      renderCategories();
+      renderUsers();
+      renderCoupons();
+    } catch(err) {
+      alert('❌ Invalid file format');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function resetAllData() {
+  if (!confirm('⚠️ This will DELETE ALL store data (products, orders, users, coupons). Are you sure?')) return;
+  if (!confirm('Last chance! All data will be lost. Proceed?')) return;
+  DataStore.clearAllData();
+  alert('✅ All data reset to defaults. Refreshing...');
+  renderDashboard();
+  renderOrders();
+  renderProducts();
+  renderCategories();
+  renderUsers();
+  renderCoupons();
 }
 
 // ===== INIT =====
@@ -282,26 +344,12 @@ function initAdmin() {
   updateClock();
 }
 
-// Auto-login if already logged in via sessionStorage
+// Auto-login if already logged in via localStorage
 document.addEventListener('DOMContentLoaded', () => {
-  if (sessionStorage.getItem('pf_admin_logged')) {
+  if (localStorage.getItem('pf_admin_logged')) {
     isLoggedIn = true;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appMain').style.display = 'flex';
     initAdmin();
   }
 });
-
-// Override login to save session
-const origLogin = handleAdminLogin;
-handleAdminLogin = function(e) {
-  origLogin(e);
-  if (isLoggedIn) sessionStorage.setItem('pf_admin_logged', 'true');
-};
-
-handleLogout = function() {
-  isLoggedIn = false;
-  sessionStorage.removeItem('pf_admin_logged');
-  document.getElementById('loginScreen').style.display = 'flex';
-  document.getElementById('appMain').style.display = 'none';
-};
