@@ -1,126 +1,250 @@
+const firebaseConfig = {
+  apiKey: "AIzaSyDuU-yf7Pywzv5QtmkIPuJOSfJedmZalgo",
+  authDomain: "mithila-fashionss.firebaseapp.com",
+  databaseURL: "https://mithila-fashionss-default-rtdb.firebaseio.com",
+  projectId: "mithila-fashionss",
+  storageBucket: "mithila-fashionss.firebasestorage.app",
+  messagingSenderId: "528021252981",
+  appId: "1:528021252981:web:9a14b98e2423e9b3cd813c"
+};
+
+let fb = null;
+try {
+  firebase.initializeApp(firebaseConfig);
+  fb = firebase.database();
+} catch(e) {
+  console.warn('Firebase init failed:', e.message);
+}
+
+function fbRef(path) { return fb ? fb.ref(path) : null; }
+
+function objToArray(obj) {
+  return obj ? Object.keys(obj).map(k => ({ ...obj[k], _key: k })) : [];
+}
+
+function arrayToObj(arr) {
+  const obj = {};
+  if (!arr) return obj;
+  arr.forEach(item => {
+    const key = item._key || item.id;
+    if (key) { obj[key] = { ...item }; delete obj[key]._key; }
+  });
+  return obj;
+}
+
 const DataStore = {
+  _cache: { products: [], orders: [], users: [], categories: [], coupons: [], banners: [], reviews: [] },
+  _callbacks: {},
+
   init() {
-    if (!localStorage.getItem('mf_products')) this.seedProducts();
-    if (!localStorage.getItem('mf_orders')) this.seedOrders();
-    if (!localStorage.getItem('mf_users')) this.seedUsers();
-    if (!localStorage.getItem('mf_categories')) this.seedCategories();
-    if (!localStorage.getItem('mf_coupons')) this.seedCoupons();
-    if (!localStorage.getItem('mf_banners')) this.seedBanners();
-    if (!localStorage.getItem('mf_reviews')) localStorage.setItem('mf_reviews', '[]');
-    if (!localStorage.getItem('mf_cart')) localStorage.setItem('mf_cart', '[]');
-    if (!localStorage.getItem('mf_wishlist')) localStorage.setItem('mf_wishlist', '[]');
+    const sessionKeys = ['mf_cart', 'mf_wishlist', 'mf_current_user', 'mf_admin_pass', 'mf_admin_logged', 'mf_coupon_text', 'mf_slide_time', 'mf_slide_autoplay'];
+    sessionKeys.forEach(k => { if (!localStorage.getItem(k)) { if (k === 'mf_cart') localStorage.setItem(k, '[]'); else if (k === 'mf_wishlist') localStorage.setItem(k, '[]'); } });
+
+    if (!fb) {
+      this._loadLocal();
+      return;
+    }
+
+    this._listen('products', (data) => {
+      this._cache.products = data;
+      this._saveLocal('mf_products', data);
+      if (data.length === 0) this.seedProducts();
+      this._notify('products');
+    });
+    this._listen('orders', (data) => {
+      this._cache.orders = data;
+      this._saveLocal('mf_orders', data);
+      this._notify('orders');
+    });
+    this._listen('users', (data) => {
+      this._cache.users = data;
+      this._saveLocal('mf_users', data);
+      if (data.length === 0) this.seedUsers();
+      this._notify('users');
+    });
+    this._listen('categories', (data) => {
+      this._cache.categories = data;
+      this._saveLocal('mf_categories', data);
+      if (data.length === 0) this.seedCategories();
+      this._notify('categories');
+    });
+    this._listen('coupons', (data) => {
+      this._cache.coupons = data;
+      this._saveLocal('mf_coupons', data);
+      if (data.length === 0) this.seedCoupons();
+      this._notify('coupons');
+    });
+    this._listen('banners', (data) => {
+      this._cache.banners = data;
+      this._saveLocal('mf_banners', data);
+      if (data.length === 0) this.seedBanners();
+      this._notify('banners');
+    });
+    this._listen('reviews', (data) => {
+      this._cache.reviews = data;
+      this._saveLocal('mf_reviews', data);
+      this._notify('reviews');
+    });
   },
 
-  getProducts() { try { return JSON.parse(localStorage.getItem('mf_products')) || []; } catch(e) { return []; } },
-  saveProducts(p) { localStorage.setItem('mf_products', JSON.stringify(p)); },
-  getProduct(id) { const prods = this.getProducts(); return prods.find(p => p.id === id); },
+  _listen(key, callback) {
+    const path = fbRef(key);
+    if (!path) return;
+    path.on('value', snapshot => {
+      callback(objToArray(snapshot.val()));
+    });
+    this._listeners[key] = path;
+  },
+
+  _offAll() {
+    Object.keys(this._listeners).forEach(k => {
+      if (this._listeners[k]) this._listeners[k].off();
+    });
+    this._listeners = {};
+  },
+
+  _saveLocal(key, arr) {
+    try { localStorage.setItem(key, JSON.stringify(arr)); } catch(e) {}
+  },
+
+  _loadLocal() {
+    ['products','orders','users','categories','coupons','banners','reviews'].forEach(key => {
+      try {
+        const data = JSON.parse(localStorage.getItem('mf_' + key)) || [];
+        this._cache[key] = data;
+        if (data.length === 0 && this['seed' + key.charAt(0).toUpperCase() + key.slice(1)]) {
+          this['seed' + key.charAt(0).toUpperCase() + key.slice(1)]();
+        }
+      } catch(e) { this._cache[key] = []; }
+    });
+  },
+
+  _fbSet(key, arr) {
+    const path = fbRef(key);
+    if (path) { path.set(arrayToObj(arr)); }
+    this._cache[key] = arr;
+    this._saveLocal('mf_' + key, arr);
+  },
+
+  on(key, cb) {
+    if (!this._callbacks[key]) this._callbacks[key] = [];
+    this._callbacks[key].push(cb);
+  },
+
+  off(key, cb) {
+    if (!this._callbacks[key]) return;
+    this._callbacks[key] = this._callbacks[key].filter(f => f !== cb);
+  },
+
+  _notify(key) {
+    if (this._callbacks[key]) this._callbacks[key].forEach(fn => fn(this._cache[key]));
+  },
+
+  getProducts() { return this._cache.products; },
+  saveProducts(arr) { this._fbSet('products', arr); },
+  getProduct(id) { return this._cache.products.find(p => p.id == id); },
 
   addProduct(p) {
-    const prods = this.getProducts();
     p.id = Date.now();
-    prods.push(p);
-    this.saveProducts(prods);
+    const arr = [...this._cache.products, p];
+    this._fbSet('products', arr);
     return p;
   },
 
   updateProduct(id, data) {
-    const prods = this.getProducts();
-    const idx = prods.findIndex(p => p.id === id);
-    if (idx > -1) { Object.assign(prods[idx], data); this.saveProducts(prods); return prods[idx]; }
-    return null;
+    const arr = this._cache.products.map(p => p.id == id ? { ...p, ...data } : p);
+    this._fbSet('products', arr);
+    return arr.find(p => p.id == id);
   },
 
   deleteProduct(id) {
-    let prods = this.getProducts();
-    prods = prods.filter(p => p.id !== id);
-    this.saveProducts(prods);
+    this._fbSet('products', this._cache.products.filter(p => p.id != id));
   },
 
-  getCategories() { try { return JSON.parse(localStorage.getItem('mf_categories')) || []; } catch(e) { return []; } },
-  saveCategories(c) { localStorage.setItem('mf_categories', JSON.stringify(c)); },
+  getCategories() { return this._cache.categories; },
+  saveCategories(arr) { this._fbSet('categories', arr); },
 
-  getOrders() { try { return JSON.parse(localStorage.getItem('mf_orders')) || []; } catch(e) { return []; } },
-  saveOrders(o) { localStorage.setItem('mf_orders', JSON.stringify(o)); },
-  getOrder(id) { return this.getOrders().find(o => o.id === id); },
+  getOrders() { return this._cache.orders; },
+  saveOrders(arr) { this._fbSet('orders', arr); },
+  getOrder(id) { return this._cache.orders.find(o => o.id === id); },
 
   addOrder(order) {
-    const orders = this.getOrders();
     order.id = 'ORD-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2, 5).toUpperCase();
     order.date = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
     order.status = 'Pending';
-    orders.unshift(order);
-    this.saveOrders(orders);
+    const arr = [order, ...this._cache.orders];
+    this._fbSet('orders', arr);
     return order;
   },
 
   updateOrderStatus(id, status) {
-    const orders = this.getOrders();
-    const o = orders.find(x => x.id === id);
-    if (o) { o.status = status; this.saveOrders(orders); }
-    return o;
+    const arr = this._cache.orders.map(o => o.id === id ? { ...o, status } : o);
+    this._fbSet('orders', arr);
+    return arr.find(o => o.id === id);
   },
 
-  getUsers() { try { return JSON.parse(localStorage.getItem('mf_users')) || []; } catch(e) { return []; } },
-  saveUsers(u) { localStorage.setItem('mf_users', JSON.stringify(u)); },
+  getUsers() { return this._cache.users; },
+  saveUsers(arr) { this._fbSet('users', arr); },
 
   registerUser(u) {
-    const users = this.getUsers();
-    if (users.find(x => x.email === u.email)) return { error: 'Email already registered' };
-    if (users.find(x => x.phone === u.phone)) return { error: 'Phone already registered' };
+    if (this._cache.users.find(x => x.email === u.email)) return { error: 'Email already registered' };
+    if (this._cache.users.find(x => x.phone === u.phone)) return { error: 'Phone already registered' };
     u.id = 'USR-' + Date.now().toString(36).toUpperCase();
     u.createdAt = new Date().toISOString();
     u.address = u.address || '';
     u.city = u.city || '';
     u.pincode = u.pincode || '';
     u.avatar = u.avatar || '';
-    users.push(u);
-    this.saveUsers(users);
+    const arr = [...this._cache.users, u];
+    this._fbSet('users', arr);
     return { success: true, user: { id: u.id, name: u.name, email: u.email, phone: u.phone, address: u.address, city: u.city, pincode: u.pincode, avatar: u.avatar } };
   },
 
   loginUser(email, password) {
-    const users = this.getUsers();
-    const u = users.find(x => x.email === email && x.password === password);
+    const u = this._cache.users.find(x => x.email === email && x.password === password);
     if (!u) return { error: 'Invalid email or password' };
     return { success: true, user: { id: u.id, name: u.name, email: u.email, phone: u.phone, address: u.address, city: u.city, pincode: u.pincode, avatar: u.avatar } };
   },
 
   updateUser(id, data) {
-    const users = this.getUsers();
-    const idx = users.findIndex(u => u.id === id);
-    if (idx > -1) { Object.assign(users[idx], data); this.saveUsers(users); return users[idx]; }
-    return null;
+    const arr = this._cache.users.map(u => u.id === id ? { ...u, ...data } : u);
+    this._fbSet('users', arr);
+    return arr.find(u => u.id === id);
   },
 
-  getCoupons() { try { return JSON.parse(localStorage.getItem('mf_coupons')) || []; } catch(e) { return []; } },
-  saveCoupons(c) { localStorage.setItem('mf_coupons', JSON.stringify(c)); },
+  getCoupons() { return this._cache.coupons; },
+  saveCoupons(arr) { this._fbSet('coupons', arr); },
 
   getCart() { try { return JSON.parse(localStorage.getItem('mf_cart')) || []; } catch(e) { return []; } },
   saveCart(c) { localStorage.setItem('mf_cart', JSON.stringify(c)); },
   getWishlist() { try { return JSON.parse(localStorage.getItem('mf_wishlist')) || []; } catch(e) { return []; } },
   saveWishlist(w) { localStorage.setItem('mf_wishlist', JSON.stringify(w)); },
 
-  getBanners() { try { return JSON.parse(localStorage.getItem('mf_banners')) || []; } catch(e) { return []; } },
-  saveBanners(b) { localStorage.setItem('mf_banners', JSON.stringify(b)); },
+  getBanners() { return this._cache.banners; },
+  saveBanners(arr) { this._fbSet('banners', arr); },
 
   getReviews(productId) {
-    let all = [];
-    try { all = JSON.parse(localStorage.getItem('mf_reviews')) || []; } catch(e) {}
-    return all.filter(r => r.productId === productId);
+    return this._cache.reviews.filter(r => r.productId == productId);
   },
+
+  getAllReviews() {
+    return this._cache.reviews;
+  },
+
   addReview(r) {
-    let all = [];
-    try { all = JSON.parse(localStorage.getItem('mf_reviews')) || []; } catch(e) {}
     r.id = Date.now();
     r.date = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-    all.push(r);
-    localStorage.setItem('mf_reviews', JSON.stringify(all));
+    const arr = [...this._cache.reviews, r];
+    this._fbSet('reviews', arr);
     return r;
   },
 
+  deleteReview(id) {
+    this._fbSet('reviews', this._cache.reviews.filter(r => r.id !== id));
+  },
+
   applyCoupon(code, cartTotal) {
-    const coupons = this.getCoupons();
-    const c = coupons.find(x => x.code === code.toUpperCase() && x.active);
+    const c = this._cache.coupons.find(x => x.code === code.toUpperCase() && x.active);
     if (!c) return { error: 'Invalid coupon code' };
     if (c.uses >= c.maxUses) return { error: 'Coupon usage limit reached' };
     if (cartTotal < c.minOrder) return { error: `Minimum order ₹${c.minOrder} required` };
@@ -128,20 +252,15 @@ const DataStore = {
     if (c.maxDiscount && discount > c.maxDiscount) discount = c.maxDiscount;
     if (discount > cartTotal) discount = cartTotal;
     c.uses += 1;
-    this.saveCoupons(coupons);
+    this.saveCoupons(this._cache.coupons);
     return { success: true, discount, code: c.code };
   },
 
   exportData() {
     return {
-      products: this.getProducts(),
-      orders: this.getOrders(),
-      users: this.getUsers(),
-      categories: this.getCategories(),
-      coupons: this.getCoupons(),
-      reviews: (() => { try { return JSON.parse(localStorage.getItem('mf_reviews') || '[]'); } catch(e) { return []; } })(),
-      wishlist: this.getWishlist(),
-      banners: this.getBanners(),
+      products: this.getProducts(), orders: this.getOrders(), users: this.getUsers(),
+      categories: this.getCategories(), coupons: this.getCoupons(),
+      reviews: this._cache.reviews, wishlist: this.getWishlist(), banners: this.getBanners(),
       exportedAt: new Date().toISOString()
     };
   },
@@ -149,38 +268,35 @@ const DataStore = {
   importData(data) {
     if (!data || !data.products) return { error: 'Invalid backup file' };
     try {
-      this.saveProducts(data.products);
+      this.saveProducts(data.products || []);
       this.saveOrders(data.orders || []);
       this.saveUsers(data.users || []);
       this.saveCategories(data.categories || []);
       this.saveCoupons(data.coupons || []);
-      localStorage.setItem('mf_reviews', JSON.stringify(data.reviews || []));
+      this._fbSet('reviews', data.reviews || []);
       localStorage.setItem('mf_wishlist', JSON.stringify(data.wishlist || []));
-      localStorage.setItem('mf_banners', JSON.stringify(data.banners || []));
       return { success: true };
-    } catch(e) {
-      return { error: e.message };
-    }
+    } catch(e) { return { error: e.message }; }
   },
 
   clearAllData() {
+    ['products','orders','users','categories','coupons','reviews','banners'].forEach(key => {
+      const path = fbRef(key);
+      if (path) path.remove();
+    });
     ['mf_products','mf_orders','mf_users','mf_categories','mf_coupons','mf_reviews','mf_wishlist','mf_cart','mf_banners','mf_data_version','mf_admin_pass','mf_current_user','mf_slide_time','mf_slide_autoplay','mf_coupon_text'].forEach(k => localStorage.removeItem(k));
+    this._cache = { products: [], orders: [], users: [], categories: [], coupons: [], banners: [], reviews: [] };
+    this._offAll();
     this.init();
   },
 
   getStats() {
-    const orders = this.getOrders();
-    const users = this.getUsers();
-    const products = this.getProducts();
+    const orders = this._cache.orders;
+    const users = this._cache.users;
+    const products = this._cache.products;
     const totalRevenue = orders.reduce((s, o) => s + (o.total || 0), 0);
     const pendingOrders = orders.filter(o => o.status === 'Pending').length;
-    return {
-      totalOrders: orders.length,
-      totalRevenue,
-      totalUsers: users.length,
-      totalProducts: products.length,
-      pendingOrders
-    };
+    return { totalOrders: orders.length, totalRevenue, totalUsers: users.length, totalProducts: products.length, pendingOrders };
   },
 
   seedBanners() {
@@ -236,25 +352,21 @@ const DataStore = {
     this.saveProducts(prods);
   },
 
-  seedOrders() {
-    this.saveOrders([]);
-  },
+  seedOrders() { this.saveOrders([]); },
 
   seedUsers() {
-    const users = [
+    this.saveUsers([
       { id: 'USR-001', name: 'Admin User', email: 'admin@mithila.store', phone: '9999999999', password: 'admin123', address: '', city: '', pincode: '', avatar: '', createdAt: '2026-01-01' },
-    ];
-    this.saveUsers(users);
+    ]);
   },
 
   seedCoupons() {
-    const coupons = [
+    this.saveCoupons([
       { id: 1, code: 'WELCOME50', discount: 50, type: 'flat', minOrder: 999, uses: 0, maxUses: 100, active: true, maxDiscount: 0 },
       { id: 2, code: 'FASHION20', discount: 20, type: 'percent', minOrder: 2999, uses: 0, maxUses: 200, active: true, maxDiscount: 2000 },
       { id: 3, code: 'FESTIVE100', discount: 100, type: 'flat', minOrder: 5000, uses: 0, maxUses: 50, active: true, maxDiscount: 0 },
       { id: 4, code: 'NEWUSER', discount: 30, type: 'percent', minOrder: 0, uses: 0, maxUses: 500, active: true, maxDiscount: 1500 },
-    ];
-    this.saveCoupons(coupons);
+    ]);
   }
 };
 

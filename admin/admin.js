@@ -546,7 +546,7 @@ function deleteBanner(id) {
 }
 
 function renderReviews() {
-  const all = JSON.parse(localStorage.getItem('mf_reviews')) || [];
+  const all = DataStore.getAllReviews();
   const products = DataStore.getProducts();
   document.getElementById('reviewsTable').innerHTML = (all.length === 0 ? [{id:0, productId:0, name:'-', rating:'-', comment:'No reviews yet', date:'-'}] : all).map(r => {
     const p = products.find(x => x.id === r.productId);
@@ -556,9 +556,7 @@ function renderReviews() {
 
 function deleteReview(id) {
   if (!confirm('Delete this review?')) return;
-  let all = JSON.parse(localStorage.getItem('mf_reviews')) || [];
-  all = all.filter(r => r.id !== id);
-  localStorage.setItem('mf_reviews', JSON.stringify(all));
+  DataStore.deleteReview(id);
   renderReviews();
 }
 

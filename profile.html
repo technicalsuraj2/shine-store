@@ -6,6 +6,8 @@
   <title>My Profile — Mithila Fashions</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
     .profile-page { margin-top: 70px; max-width: 900px; margin-left: auto; margin-right: auto; padding: 30px; }
     .profile-header { display: flex; align-items: center; gap: 20px; padding: 30px; background: var(--white); margin-bottom: 25px; }
@@ -165,7 +167,7 @@
       const email = document.getElementById('pRegEmail').value;
       const phone = document.getElementById('pRegPhone').value;
       const pass = document.getElementById('pRegPass').value;
-      const result = DataStore.registerUser(name, email, phone, pass);
+      const result = DataStore.registerUser({ name, email, phone, password: pass });
       if (result.error) { alert(result.error); return; }
       currentUser = result.user;
       localStorage.setItem('mf_current_user', JSON.stringify(currentUser));
