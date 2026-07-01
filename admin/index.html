@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SHINE Admin</title>
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+  <!-- ===== LOGIN SCREEN ===== -->
+  <div class="login-page" id="loginScreen">
+    <div class="login-card">
+      <div class="logo">SHINE<span>.</span></div>
+      <h2>Admin <strong>Panel</strong></h2>
+      <div class="login-error" id="loginError">Invalid credentials</div>
+      <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" id="adminUser" placeholder="admin" value="admin">
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" id="adminPass" placeholder="••••••" value="admin123">
+        </div>
+        <button type="submit" class="submit-btn">Login to Dashboard</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== MAIN APP ===== -->
+  <div id="appMain" style="display:none">
+
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">SHINE<span>.</span></div>
+      <div class="sidebar-user">
+        <div class="sidebar-user-avatar">A</div>
+        <div class="sidebar-user-info">
+          <h4 id="adminName">Admin</h4>
+          <p>Super Admin</p>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="sidebar-section">Main</div>
+        <button class="sidebar-item active" onclick="showPage('dashboard')"><span class="icon">📊</span> Dashboard</button>
+        <button class="sidebar-item" onclick="showPage('orders')"><span class="icon">📦</span> Orders <span class="badge" id="orderBadge">0</span></button>
+        <button class="sidebar-item" onclick="showPage('products')"><span class="icon">👗</span> Products</button>
+        <button class="sidebar-item" onclick="showPage('categories')"><span class="icon">📁</span> Categories</button>
+        <button class="sidebar-item" onclick="showPage('users')"><span class="icon">👥</span> Users</button>
+        <button class="sidebar-item" onclick="showPage('coupons')"><span class="icon">🏷️</span> Coupons</button>
+        <div class="sidebar-section" style="margin-top:15px">System</div>
+        <button class="sidebar-item" onclick="showPage('settings')"><span class="icon">⚙️</span> Settings</button>
+        <button class="sidebar-item" onclick="handleLogout()"><span class="icon">🚪</span> Logout</button>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <div class="topbar">
+        <h2 id="pageTitle">Dashboard</h2>
+        <div class="topbar-actions">
+          <a href="../" target="_blank"><button class="topbar-btn">🔗 View Store</button></a>
+          <span style="font-size:13px;color:var(--mid-grey)" id="clock"></span>
+        </div>
+      </div>
+
+      <!-- Dashboard -->
+      <div class="page-content active" id="page-dashboard">
+        <div class="stats-grid" id="statsGrid"></div>
+        <div class="card">
+          <div class="card-header"><h3>📋 Recent Orders</h3></div>
+          <div class="card-body">
+            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="recentOrdersTable"></tbody></table></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Orders -->
+      <div class="page-content" id="page-orders">
+        <div class="card">
+          <div class="card-header"><h3>📦 All Orders</h3></div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="ordersTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Products -->
+      <div class="page-content" id="page-products">
+        <div class="card">
+          <div class="card-header"><h3>👗 Products</h3><button class="btn btn-gold btn-sm" onclick="openProductModal()">+ Add Product</button></div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Brand</th><th>Category</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead>
+                <tbody id="productsTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Categories -->
+      <div class="page-content" id="page-categories">
+        <div class="card">
+          <div class="card-header"><h3>📁 Categories</h3></div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>ID</th><th>Icon</th><th>Name</th></tr></thead>
+                <tbody id="categoriesTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Users -->
+      <div class="page-content" id="page-users">
+        <div class="card">
+          <div class="card-header"><h3>👥 Registered Users</h3></div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Registered</th></tr></thead>
+                <tbody id="usersTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Coupons -->
+      <div class="page-content" id="page-coupons">
+        <div class="card">
+          <div class="card-header"><h3>🏷️ Coupons</h3><button class="btn btn-gold btn-sm" onclick="addCoupon()">+ Add Coupon</button></div>
+          <div class="card-body">
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Code</th><th>Discount</th><th>Type</th><th>Min Order</th><th>Uses</th><th>Status</th><th>Actions</th></tr></thead>
+                <tbody id="couponsTable"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="page-content" id="page-settings">
+        <div class="card">
+          <div class="card-header"><h3>⚙️ System Settings</h3></div>
+          <div class="card-body">
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Store Name</label>
+                <input type="text" id="setStoreName" value="SHINE">
+              </div>
+              <div class="form-group">
+                <label>Currency</label>
+                <input type="text" value="INR (₹)" disabled>
+              </div>
+              <div class="form-group">
+                <label>Admin Email</label>
+                <input type="email" id="setEmail" value="admin@shine.store">
+              </div>
+              <div class="form-group">
+                <label>Orders per page</label>
+                <input type="number" id="setPerPage" value="20">
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <label>Change Admin Password</label>
+                <input type="password" id="setNewPass" placeholder="New password">
+              </div>
+              <div class="form-group" style="grid-column:1/-1">
+                <button class="btn btn-black" onclick="saveSettings()">Save Settings</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== PRODUCT MODAL ===== -->
+  <div class="modal-overlay" id="productModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="productModalTitle">Add Product</h3>
+        <button class="modal-close" onclick="closeProductModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="productForm" onsubmit="saveProduct(event)">
+          <input type="hidden" id="prodId">
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Product Name</label>
+              <input type="text" id="prodName" required>
+            </div>
+            <div class="form-group">
+              <label>Brand</label>
+              <input type="text" id="prodBrand" required>
+            </div>
+            <div class="form-group">
+              <label>Category</label>
+              <select id="prodCategory"></select>
+            </div>
+            <div class="form-group">
+              <label>Price (₹)</label>
+              <input type="number" id="prodPrice" required>
+            </div>
+            <div class="form-group">
+              <label>Original Price (₹)</label>
+              <input type="number" id="prodOriginal">
+            </div>
+            <div class="form-group">
+              <label>Badge</label>
+              <input type="text" id="prodBadge" placeholder="e.g. Sale, New">
+            </div>
+            <div class="form-group">
+              <label>Emoji</label>
+              <input type="text" id="prodEmoji" placeholder="👗">
+            </div>
+            <div class="form-group">
+              <label>Stock</label>
+              <select id="prodStock"><option value="true">In Stock</option><option value="false">Out of Stock</option></select>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-black" style="float:right">Save Product</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/data.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

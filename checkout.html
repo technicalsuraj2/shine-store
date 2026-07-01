@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout — SHINE</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .checkout-page { margin-top: 70px; padding: 40px; max-width: 900px; margin-left: auto; margin-right: auto; }
+    .checkout-page h2 { font-size: 28px; font-weight: 200; margin-bottom: 5px; }
+    .checkout-page h2 strong { font-weight: 800; }
+    .checkout-page .breadcrumb { font-size: 13px; color: var(--mid-grey); margin-bottom: 30px; }
+    .checkout-card { background: var(--white); padding: 40px; }
+    .checkout-card h3 { font-size: 16px; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--light-grey); }
+    .order-items-review { margin: 25px 0; padding: 20px; background: var(--light-grey); }
+    .order-item-line { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+    .order-total-line { display: flex; justify-content: space-between; padding: 12px 0; border-top: 2px solid var(--black); margin-top: 10px; font-size: 18px; font-weight: 700; }
+    .back-link { display: inline-block; margin-top: 20px; font-size: 13px; color: var(--mid-grey); }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo" onclick="window.location='/'">SHINE<span>.</span></div>
+    <div class="nav-actions">
+      <button class="user-btn" onclick="window.location='/'">← Back to Shop</button>
+    </div>
+  </nav>
+
+  <div class="checkout-page">
+    <h2>Secure <strong>Checkout</strong></h2>
+    <div class="breadcrumb">Home / Cart / Checkout</div>
+
+    <div class="checkout-card">
+      <h3>📦 Shipping Address</h3>
+      <form id="checkoutForm">
+        <div class="form-row" style="display:flex;gap:15px">
+          <div class="form-group" style="flex:1">
+            <label>Full Name</label>
+            <input type="text" id="coName" placeholder="Full name" required>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Phone Number</label>
+            <input type="tel" id="coPhone" placeholder="Phone" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" id="coAddress" placeholder="House, Street, Area" required>
+        </div>
+        <div class="form-row" style="display:flex;gap:15px">
+          <div class="form-group" style="flex:1">
+            <label>City</label>
+            <input type="text" id="coCity" placeholder="City" required>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Pincode</label>
+            <input type="text" id="coPincode" placeholder="Pincode" required>
+          </div>
+        </div>
+
+        <h3 style="margin-top:30px">🛍️ Order Summary</h3>
+        <div class="order-items-review" id="orderReview"></div>
+
+        <h3 style="margin-top:30px">💳 Payment Method</h3>
+        <div style="display:flex;gap:15px;margin-bottom:30px">
+          <label style="flex:1;padding:16px;border:2px solid var(--black);cursor:pointer;text-align:center;font-weight:600">
+            <input type="radio" name="payment" value="cod" checked style="margin-right:8px"> Cash on Delivery
+          </label>
+          <label style="flex:1;padding:16px;border:2px solid var(--light-grey);cursor:pointer;text-align:center;font-weight:600;color:var(--mid-grey)">
+            <input type="radio" name="payment" value="online" style="margin-right:8px" disabled> UPI / Cards (Coming Soon)
+          </label>
+        </div>
+
+        <button type="submit" class="submit-btn">🛒 Place Order</button>
+      </form>
+      <a href="/" class="back-link">← Continue Shopping</a>
+    </div>
+  </div>
+
+  <div class="footer" style="margin-top:60px">
+    <div style="text-align:center;color:rgba(255,255,255,0.5);font-size:13px">© 2026 SHINE. All rights reserved.</div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    const cartItems = DataStore.getCart();
+    const currentUser = JSON.parse(localStorage.getItem('pf_current_user'));
+
+    if (!currentUser) { window.location.href = '/'; }
+    if (cartItems.length === 0) { window.location.href = '/'; }
+
+    function renderReview() {
+      const container = document.getElementById('orderReview');
+      let html = cartItems.map(i => {
+        const p = DataStore.getProduct(i.id);
+        if (!p) return '';
+        return `<div class="order-item-line"><span>${p.name} × ${i.qty}</span><span>₹${(p.price * i.qty).toLocaleString('en-IN')}</span></div>`;
+      }).join('');
+      const total = cartItems.reduce((s, i) => { const p = DataStore.getProduct(i.id); return s + (p ? p.price * i.qty : 0); }, 0);
+      html += `<div class="order-item-line"><span>Shipping</span><span>₹${total > 5000 ? '0 (FREE)' : '499'}</span></div>`;
+      html += `<div class="order-total-line"><span>Total</span><span>₹${(total + (total > 5000 ? 0 : 499)).toLocaleString('en-IN')}</span></div>`;
+      container.innerHTML = html;
+    }
+
+    document.getElementById('checkoutForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('coName').value;
+      const phone = document.getElementById('coPhone').value;
+      const address = document.getElementById('coAddress').value;
+      const city = document.getElementById('coCity').value;
+      const pincode = document.getElementById('coPincode').value;
+
+      const total = cartItems.reduce((s, i) => { const p = DataStore.getProduct(i.id); return s + (p ? p.price * i.qty : 0); }, 0);
+      const shipping = total > 5000 ? 0 : 499;
+
+      const order = {
+        customer: currentUser.name,
+        email: currentUser.email,
+        items: cartItems.map(i => {
+          const p = DataStore.getProduct(i.id);
+          return { name: p.name, qty: i.qty, price: p.price };
+        }),
+        total: total + shipping,
+        address: `${name}, ${address}, ${city} - ${pincode}`,
+        phone,
+        payment: 'COD'
+      };
+
+      DataStore.addOrder(order);
+      DataStore.saveCart([]);
+      localStorage.removeItem('pf_cart');
+
+      alert(`🎉 ORDER PLACED!\n\nOrder ID: ${order.id}\nThank you, ${name}! ✨\n\nYour order will be delivered to:\n${order.address}`);
+      window.location.href = '/';
+    });
+
+    renderReview();
+  </script>
+</body>
+</html>
