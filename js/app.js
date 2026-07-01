@@ -394,15 +394,21 @@ function toggleWishlist(id) {
 
 function showWishlist() {
   closeMobileNav();
-  if (wishlistItems.length === 0) { showToast('Your wishlist is empty', 'error'); return; }
   renderProducts();
   activeCategory = 'All';
   renderCategories();
   const ids = wishlistItems;
   const grid = $('#productsGrid');
   if (!grid) return;
+  if (wishlistItems.length === 0 || ids.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--mid-grey)"><div style="font-size:80px;margin-bottom:20px;color:#ddd"><i class="far fa-heart"></i></div><h3 style="font-size:22px;margin-bottom:8px">Wishlist Empty</h3><p style="font-size:14px;margin-bottom:25px">Apne pasandida products ko wishlist mein save karein</p><button class="submit-btn" style="width:auto;padding:14px 40px;display:inline-block" onclick="bnavigate(\'home\')"><i class="fas fa-shopping-bag"></i> Start Shopping</button></div>';
+    return;
+  }
   const prods = ids.map(id => DataStore.getProduct(id)).filter(Boolean);
-  if (prods.length === 0) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:80px"><h3>Wishlist is empty</h3></div>'; return; }
+  if (prods.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--mid-grey)"><div style="font-size:80px;margin-bottom:20px;color:#ddd"><i class="far fa-heart"></i></div><h3 style="font-size:22px;margin-bottom:8px">Wishlist Empty</h3><p style="font-size:14px;margin-bottom:25px">Apne pasandida products ko wishlist mein save karein</p><button class="submit-btn" style="width:auto;padding:14px 40px;display:inline-block" onclick="bnavigate(\'home\')"><i class="fas fa-shopping-bag"></i> Start Shopping</button></div>';
+    return;
+  }
   grid.innerHTML = prods.map((p, i) => `
     <div class="product-card" onclick="openQuickView(${p.id})" style="animation-delay:${i*0.04}s">
       ${p.badge ? `<div class="product-badge">${p.badge}</div>` : ''}

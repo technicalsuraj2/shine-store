@@ -36,6 +36,11 @@
     .empty-state { text-align: center; padding: 60px 20px; color: var(--mid-grey); }
     .empty-state .empty-icon { font-size: 60px; margin-bottom: 15px; }
 
+    .auth-card { background: var(--white); padding: 40px; margin-bottom: 25px; }
+    .auth-card .logo { margin-bottom: 10px; text-align: center; }
+    .auth-card .auth-title { text-align: center; font-size: 22px; font-weight: 200; margin-bottom: 20px; }
+    .auth-card .auth-title strong { font-weight: 800; }
+
     @media (max-width: 768px) {
       .profile-page { padding: 16px; }
       .profile-header { flex-direction: column; text-align: center; padding: 20px; }
@@ -48,6 +53,7 @@
       .profile-btn-label { font-size: 9px; }
       .profile-orders { padding: 16px; }
       .order-card { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .auth-card { padding: 20px; }
     }
     @media (max-width: 480px) { .profile-grid { grid-template-columns: repeat(2, 1fr); } }
   </style>
@@ -61,11 +67,28 @@
   </nav>
 
   <div class="profile-page" id="profilePage">
-    <div id="notLoggedIn" class="empty-state" style="display:none">
-      <div class="empty-icon"><i class="fas fa-lock"></i></div>
-      <h3>Please Sign In</h3>
-      <p style="margin-bottom:20px">Sign in to view your profile and orders.</p>
-      <button class="submit-btn" style="width:auto;padding:12px 40px;display:inline-block" onclick="window.location='index.html'">Go to Shop</button>
+    <div id="notLoggedIn" style="display:none">
+      <div class="auth-card">
+        <div class="logo" style="text-align:center">MITHILA<span>.</span></div>
+        <div class="auth-title">Welcome to <strong>Mithila Fashions</strong></div>
+        <div class="auth-tabs" style="display:flex;gap:0;margin-bottom:25px;border-bottom:2px solid var(--light-grey)">
+          <button class="auth-tab active" onclick="switchProfileAuth('login')" id="pTabLogin" style="flex:1;padding:12px 24px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;color:var(--black);border-bottom:2px solid var(--black);margin-bottom:-2px">Sign In</button>
+          <button class="auth-tab" onclick="switchProfileAuth('register')" id="pTabRegister" style="flex:1;padding:12px 24px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;color:var(--mid-grey);border-bottom:2px solid transparent;margin-bottom:-2px">Register</button>
+        </div>
+        <form id="pLoginForm" onsubmit="handleProfileLogin(event)">
+          <div class="form-group"><label>Email Address</label><input type="email" id="pLoginEmail" placeholder="your@email.com" required></div>
+          <div class="form-group"><label>Password</label><input type="password" id="pLoginPass" placeholder="••••••••" required></div>
+          <button type="submit" class="submit-btn">Sign In</button>
+        </form>
+        <form id="pRegisterForm" style="display:none" onsubmit="handleProfileRegister(event)">
+          <div class="form-group"><label>Full Name</label><input type="text" id="pRegName" placeholder="Your name" required></div>
+          <div class="form-group"><label>Email Address</label><input type="email" id="pRegEmail" placeholder="your@email.com" required></div>
+          <div class="form-group"><label>Phone Number</label><input type="tel" id="pRegPhone" placeholder="Phone number" required></div>
+          <div class="form-group"><label>Password</label><input type="password" id="pRegPass" placeholder="Create password" required></div>
+          <button type="submit" class="submit-btn">Create Account</button>
+        </form>
+        <p style="text-align:center;margin-top:20px;font-size:12px;color:var(--mid-grey)">By continuing, you agree to our Terms & Privacy Policy</p>
+      </div>
     </div>
 
     <div id="profileContent">
@@ -110,6 +133,44 @@
       const raw = localStorage.getItem('mf_current_user');
       currentUser = raw ? JSON.parse(raw) : null;
     } catch(e) {}
+
+    function switchProfileAuth(tab) {
+      const login = document.getElementById('pLoginForm'), register = document.getElementById('pRegisterForm');
+      const tL = document.getElementById('pTabLogin'), tR = document.getElementById('pTabRegister');
+      if (tab === 'login') {
+        login.style.display = 'block'; register.style.display = 'none';
+        tL.style.cssText = 'flex:1;padding:12px 24px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;color:var(--black);border-bottom:2px solid var(--black);margin-bottom:-2px';
+        tR.style.cssText = 'flex:1;padding:12px 24px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;color:var(--mid-grey);border-bottom:2px solid transparent;margin-bottom:-2px';
+      } else {
+        login.style.display = 'none'; register.style.display = 'block';
+        tR.style.cssText = 'flex:1;padding:12px 24px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;color:var(--black);border-bottom:2px solid var(--black);margin-bottom:-2px';
+        tL.style.cssText = 'flex:1;padding:12px 24px;border:none;background:none;font-size:13px;font-weight:600;cursor:pointer;color:var(--mid-grey);border-bottom:2px solid transparent;margin-bottom:-2px';
+      }
+    }
+
+    function handleProfileLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('pLoginEmail').value;
+      const pass = document.getElementById('pLoginPass').value;
+      const result = DataStore.loginUser(email, pass);
+      if (result.error) { alert(result.error); return; }
+      currentUser = result.user;
+      localStorage.setItem('mf_current_user', JSON.stringify(currentUser));
+      window.location.reload();
+    }
+
+    function handleProfileRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('pRegName').value;
+      const email = document.getElementById('pRegEmail').value;
+      const phone = document.getElementById('pRegPhone').value;
+      const pass = document.getElementById('pRegPass').value;
+      const result = DataStore.registerUser(name, email, phone, pass);
+      if (result.error) { alert(result.error); return; }
+      currentUser = result.user;
+      localStorage.setItem('mf_current_user', JSON.stringify(currentUser));
+      window.location.reload();
+    }
 
     if (!currentUser) {
       document.getElementById('notLoggedIn').style.display = 'block';
