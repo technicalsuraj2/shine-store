@@ -356,8 +356,9 @@ function updateCartUI() {
 
 function toggleCart() {
   closeMobileNav();
-  $('#cartDrawer').classList.toggle('open');
+  const isOpen = $('#cartDrawer').classList.toggle('open');
   $('#cartOverlay').classList.toggle('open');
+  document.getElementById('bottomNav').style.display = isOpen ? 'none' : '';
   renderCartDrawer();
 }
 
