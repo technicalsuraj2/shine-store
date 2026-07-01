@@ -314,7 +314,10 @@ function showReviewForm(productId) {
 function addToCart(id) {
   const existing = cartItems.find(i => i.id === id);
   if (existing) existing.qty += 1;
-  else cartItems.push({ id, qty: 1 });
+  else {
+    const p = DataStore.getProduct(id);
+    cartItems.push({ id, qty: 1, name: p?.name || 'Product', price: p?.price || 0 });
+  }
   saveCart();
   updateCartUI();
   const p = DataStore.getProduct(id);
@@ -341,7 +344,7 @@ function updateQty(id, delta) {
 function saveCart() { DataStore.saveCart(cartItems); }
 
 function getCartTotal() {
-  return cartItems.reduce((s, i) => { const p = DataStore.getProduct(i.id); return s + (p ? p.price * i.qty : 0); }, 0);
+  return cartItems.reduce((s, i) => s + ((DataStore.getProduct(i.id)?.price || i.price || 0) * i.qty), 0);
 }
 
 function updateCartUI() {
@@ -373,11 +376,13 @@ function renderCartDrawer() {
   }
   container.innerHTML = cartItems.map(i => {
     const p = DataStore.getProduct(i.id);
-    if (!p) return '';
+    const name = p?.name || i.name;
+    const price = p?.price || i.price || 0;
+    const img = p?.images?.[0] || '';
     return `<div class="cart-d-item">
-      <div class="cart-d-item-img">${p.images && p.images[0] ? `<img src="${p.images[0]}" alt="${p.name}">` : '<i class="fas fa-tshirt"></i>'}</div>
-      <div class="cart-d-item-info"><h4>${p.name}</h4><div class="item-price">${formatPrice(p.price)}</div><div class="cart-d-qty"><button onclick="updateQty(${p.id}, -1)">−</button><span>${i.qty}</span><button onclick="updateQty(${p.id}, 1)">+</button></div></div>
-      <button class="cart-d-item-remove" onclick="removeFromCart(${p.id})"><i class="fas fa-times"></i></button>
+      <div class="cart-d-item-img">${img ? `<img src="${img}" alt="${name}">` : '<i class="fas fa-tshirt"></i>'}</div>
+      <div class="cart-d-item-info"><h4>${name}</h4><div class="item-price">${formatPrice(price)}</div><div class="cart-d-qty"><button onclick="updateQty(${i.id}, -1)">−</button><span>${i.qty}</span><button onclick="updateQty(${i.id}, 1)">+</button></div></div>
+      <button class="cart-d-item-remove" onclick="removeFromCart(${i.id})"><i class="fas fa-times"></i></button>
     </div>`;
   }).join('');
   if (totalEl) totalEl.textContent = formatPrice(getCartTotal());

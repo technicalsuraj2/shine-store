@@ -128,7 +128,7 @@
     let discountAmount = 0;
 
     try {
-      cartItems = DataStore.getCart().filter(i => DataStore.getProduct(i.id));
+      cartItems = DataStore.getCart().filter(i => i.name);
       const raw = localStorage.getItem('mf_current_user');
       currentUser = raw ? JSON.parse(raw) : null;
     } catch(e) {}
@@ -137,7 +137,7 @@
     if (cartItems.length === 0) { alert('Your cart is empty!'); window.location.href = 'index.html'; }
 
     function calcTotals() {
-      const subtotal = cartItems.reduce((s, i) => { const p = DataStore.getProduct(i.id); return s + (p ? p.price * i.qty : 0); }, 0);
+      const subtotal = cartItems.reduce((s, i) => s + (i.price || 0) * i.qty, 0);
       const shipping = subtotal > 5000 ? 0 : 499;
       return { subtotal, shipping };
     }
@@ -152,10 +152,9 @@
       const { subtotal, shipping } = calcTotals();
       const finalTotal = getFinalTotal();
 
-      let html = cartItems.map(i => {
-        const p = DataStore.getProduct(i.id);
-        return `<div class="order-item-line"><span>${p.name} × ${i.qty}</span><span>₹${(p.price * i.qty).toLocaleString('en-IN')}</span></div>`;
-      }).join('');
+      let html = cartItems.map(i =>
+        `<div class="order-item-line"><span>${i.name} × ${i.qty}</span><span>₹${((i.price || 0) * i.qty).toLocaleString('en-IN')}</span></div>`
+      ).join('');
       html += `<div class="order-item-line"><span>Subtotal</span><span>₹${subtotal.toLocaleString('en-IN')}</span></div>`;
       html += `<div class="order-item-line"><span>Shipping</span><span>${shipping === 0 ? 'FREE' : '₹'+shipping}</span></div>`;
       if (discountAmount > 0) {
@@ -238,7 +237,7 @@
       const order = {
         customer: currentUser.name,
         email: currentUser.email,
-        items: cartItems.map(i => { const p = DataStore.getProduct(i.id); return { name: p.name, qty: i.qty, price: p.price }; }),
+        items: cartItems.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
         total: Math.max(0, finalTotal),
         subtotal,
         shipping,
