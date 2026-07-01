@@ -46,7 +46,6 @@ function navigate(page) {
 }
 
 function bnavigate(page) {
-  closeMobileNav();
   const items = $$('.bn-item');
   items.forEach(i => i.classList.remove('active'));
   if (page === 'home') {
@@ -59,6 +58,12 @@ function bnavigate(page) {
     items[1].classList.add('active');
     document.getElementById('categoriesBar')?.scrollIntoView({ behavior: 'smooth' });
   }
+}
+
+function handleMobileSearch(val) {
+  const input = $('#searchInput');
+  if (input) input.value = val;
+  handleSearch(val);
 }
 
 function toggleMobileNav() {

@@ -11,8 +11,6 @@
 
   <nav class="navbar" id="navbar">
     <div class="logo" onclick="navigate('home')">MITHILA<span>.</span></div>
-    <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileNav()"><i class="fas fa-bars"></i></button>
-    <button class="hamburger search-toggle" id="searchToggle" onclick="toggleMobileSearch()"><i class="fas fa-search"></i></button>
     <div class="nav-search">
       <i class="fas fa-search search-icon"></i>
       <input type="text" placeholder="Search products..." id="searchInput" oninput="handleSearch(this.value)">
@@ -24,7 +22,14 @@
       <button class="user-btn" id="authBtn" onclick="openAuth()">Sign In</button>
     </div>
   </nav>
-  <div class="nav-backdrop" id="navBackdrop" onclick="closeMobileNav()"></div>
+
+  <div class="mobile-top-bar" id="mobileTopBar">
+    <div class="mtb-search">
+      <i class="fas fa-search"></i>
+      <input type="text" placeholder="Search products..." id="mobileSearchInput" oninput="handleMobileSearch(this.value)">
+    </div>
+    <button class="mtb-profile" onclick="window.location='profile.html'"><i class="fas fa-user"></i></button>
+  </div>
 
   <section class="hero-slider" id="heroSlider">
     <div class="slider-container" id="sliderContainer"></div>
