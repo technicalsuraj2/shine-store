@@ -11,7 +11,7 @@ const DataStore = {
     if (!localStorage.getItem('mf_wishlist')) localStorage.setItem('mf_wishlist', '[]');
   },
 
-  getProducts() { return JSON.parse(localStorage.getItem('mf_products')) || []; },
+  getProducts() { try { return JSON.parse(localStorage.getItem('mf_products')) || []; } catch(e) { return []; } },
   saveProducts(p) { localStorage.setItem('mf_products', JSON.stringify(p)); },
   getProduct(id) { const prods = this.getProducts(); return prods.find(p => p.id === id); },
 
@@ -36,10 +36,10 @@ const DataStore = {
     this.saveProducts(prods);
   },
 
-  getCategories() { return JSON.parse(localStorage.getItem('mf_categories')) || []; },
+  getCategories() { try { return JSON.parse(localStorage.getItem('mf_categories')) || []; } catch(e) { return []; } },
   saveCategories(c) { localStorage.setItem('mf_categories', JSON.stringify(c)); },
 
-  getOrders() { return JSON.parse(localStorage.getItem('mf_orders')) || []; },
+  getOrders() { try { return JSON.parse(localStorage.getItem('mf_orders')) || []; } catch(e) { return []; } },
   saveOrders(o) { localStorage.setItem('mf_orders', JSON.stringify(o)); },
   getOrder(id) { return this.getOrders().find(o => o.id === id); },
 
@@ -60,7 +60,7 @@ const DataStore = {
     return o;
   },
 
-  getUsers() { return JSON.parse(localStorage.getItem('mf_users')) || []; },
+  getUsers() { try { return JSON.parse(localStorage.getItem('mf_users')) || []; } catch(e) { return []; } },
   saveUsers(u) { localStorage.setItem('mf_users', JSON.stringify(u)); },
 
   registerUser(u) {
@@ -92,23 +92,25 @@ const DataStore = {
     return null;
   },
 
-  getCoupons() { return JSON.parse(localStorage.getItem('mf_coupons')) || []; },
+  getCoupons() { try { return JSON.parse(localStorage.getItem('mf_coupons')) || []; } catch(e) { return []; } },
   saveCoupons(c) { localStorage.setItem('mf_coupons', JSON.stringify(c)); },
 
-  getCart() { return JSON.parse(localStorage.getItem('mf_cart')) || []; },
+  getCart() { try { return JSON.parse(localStorage.getItem('mf_cart')) || []; } catch(e) { return []; } },
   saveCart(c) { localStorage.setItem('mf_cart', JSON.stringify(c)); },
-  getWishlist() { return JSON.parse(localStorage.getItem('mf_wishlist')) || []; },
+  getWishlist() { try { return JSON.parse(localStorage.getItem('mf_wishlist')) || []; } catch(e) { return []; } },
   saveWishlist(w) { localStorage.setItem('mf_wishlist', JSON.stringify(w)); },
 
-  getBanners() { return JSON.parse(localStorage.getItem('mf_banners')) || []; },
+  getBanners() { try { return JSON.parse(localStorage.getItem('mf_banners')) || []; } catch(e) { return []; } },
   saveBanners(b) { localStorage.setItem('mf_banners', JSON.stringify(b)); },
 
   getReviews(productId) {
-    const all = JSON.parse(localStorage.getItem('mf_reviews')) || [];
+    let all = [];
+    try { all = JSON.parse(localStorage.getItem('mf_reviews')) || []; } catch(e) {}
     return all.filter(r => r.productId === productId);
   },
   addReview(r) {
-    const all = JSON.parse(localStorage.getItem('mf_reviews')) || [];
+    let all = [];
+    try { all = JSON.parse(localStorage.getItem('mf_reviews')) || []; } catch(e) {}
     r.id = Date.now();
     r.date = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
     all.push(r);
@@ -137,8 +139,8 @@ const DataStore = {
       users: this.getUsers(),
       categories: this.getCategories(),
       coupons: this.getCoupons(),
-      reviews: JSON.parse(localStorage.getItem('mf_reviews') || '[]'),
-      wishlist: JSON.parse(localStorage.getItem('mf_wishlist') || '[]'),
+      reviews: (() => { try { return JSON.parse(localStorage.getItem('mf_reviews') || '[]'); } catch(e) { return []; } })(),
+      wishlist: this.getWishlist(),
       banners: this.getBanners(),
       exportedAt: new Date().toISOString()
     };

@@ -185,6 +185,12 @@
       document.getElementById('profilePhone').textContent = currentUser.phone || '';
 
       const orders = DataStore.getOrders().filter(o => o.email === currentUser.email);
+      if (orders.length === 0) {
+        const allUserOrders = DataStore.getOrders().filter(o => o.customer === currentUser.name || !o.email);
+        if (allUserOrders.length > 0) {
+          orders.push(...allUserOrders);
+        }
+      }
       const wishlist = DataStore.getWishlist();
       const cart = DataStore.getCart();
       const totalSpent = orders.reduce((s, o) => s + (o.total || 0), 0);
