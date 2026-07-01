@@ -55,10 +55,14 @@
         <button class="sidebar-item" onclick="handleLogout()"><span class="icon"><i class="fas fa-sign-out-alt"></i></span> Logout</button>
       </nav>
     </aside>
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeAdminSidebar()"></div>
 
     <div class="main-content">
       <div class="topbar">
-        <h2 id="pageTitle">Dashboard</h2>
+        <div class="topbar-left">
+          <button class="hamburger" id="adminHamburger" onclick="toggleAdminSidebar()"><i class="fas fa-bars"></i></button>
+          <h2 id="pageTitle">Dashboard</h2>
+        </div>
         <div class="topbar-actions">
           <a href="../" target="_blank"><button class="topbar-btn"><i class="fas fa-external-link-alt"></i> View Store</button></a>
           <span style="font-size:13px;color:var(--mid-grey)" id="clock"></span>

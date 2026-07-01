@@ -21,6 +21,14 @@
     .coupon-applied { background: #E8F5E9; padding: 10px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
     .coupon-applied span:first-child { font-weight: 600; color: var(--green); }
     .remove-coupon { background: none; border: none; color: var(--red); cursor: pointer; font-size: 18px; }
+    @media (max-width: 768px) {
+      .checkout-page { padding: 16px; }
+      .checkout-card { padding: 20px; }
+      .checkout-page h2 { font-size: 22px; }
+      .form-row { flex-direction: column; gap: 0 !important; }
+      #checkoutForm label[for="payment"] + div { flex-direction: column; }
+      .checkout-card label[style*="flex:1"] { flex: none !important; }
+    }
   </style>
 </head>
 <body>

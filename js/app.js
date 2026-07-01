@@ -45,6 +45,30 @@ function navigate(page) {
   if (page === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function toggleMobileNav() {
+  const nav = $('#navActions');
+  const hamburger = $('#hamburgerBtn');
+  const backdrop = $('#navBackdrop');
+  if (!nav) return;
+  const isOpen = nav.classList.toggle('open');
+  hamburger.innerHTML = isOpen ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+  if (backdrop) backdrop.classList.toggle('open', isOpen);
+}
+
+function closeMobileNav() {
+  const nav = $('#navActions');
+  const hamburger = $('#hamburgerBtn');
+  const backdrop = $('#navBackdrop');
+  if (nav) nav.classList.remove('open');
+  if (hamburger) hamburger.innerHTML = '<i class="fas fa-bars"></i>';
+  if (backdrop) backdrop.classList.remove('open');
+}
+
+function toggleMobileSearch() {
+  const search = $('.nav-search');
+  if (search) search.classList.toggle('open');
+}
+
 function updateCouponStrip() {
   const strip = document.getElementById('couponStrip');
   if (strip) {
@@ -308,6 +332,7 @@ function updateCartUI() {
 }
 
 function toggleCart() {
+  closeMobileNav();
   $('#cartDrawer').classList.toggle('open');
   $('#cartOverlay').classList.toggle('open');
   renderCartDrawer();
@@ -350,6 +375,7 @@ function toggleWishlist(id) {
 }
 
 function showWishlist() {
+  closeMobileNav();
   if (wishlistItems.length === 0) { showToast('Your wishlist is empty', 'error'); return; }
   renderProducts();
   activeCategory = 'All';
@@ -372,7 +398,7 @@ function showWishlist() {
   showToast(`<i class="fas fa-heart"></i> ${prods.length} wishlist items`, 'gold');
 }
 
-function openAuth() { $('#authOverlay').classList.add('open'); }
+function openAuth() { closeMobileNav(); $('#authOverlay').classList.add('open'); }
 function closeAuth() { $('#authOverlay').classList.remove('open'); }
 
 function switchAuth(tab) {

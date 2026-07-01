@@ -19,13 +19,25 @@ function handleAdminLogin(e) {
 }
 
 function handleLogout() {
+  closeAdminSidebar();
   isLoggedIn = false;
   localStorage.removeItem('mf_admin_logged');
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('appMain').style.display = 'none';
 }
 
+function toggleAdminSidebar() {
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+
+function closeAdminSidebar() {
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
 function showPage(page) {
+  closeAdminSidebar();
   document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
   const el = document.getElementById(`page-${page}`);
   if (el) el.classList.add('active');

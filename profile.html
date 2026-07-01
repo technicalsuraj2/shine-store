@@ -36,7 +36,20 @@
     .empty-state { text-align: center; padding: 60px 20px; color: var(--mid-grey); }
     .empty-state .empty-icon { font-size: 60px; margin-bottom: 15px; }
 
-    @media (max-width: 768px) { .profile-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); } .profile-stats { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) {
+      .profile-page { padding: 16px; }
+      .profile-header { flex-direction: column; text-align: center; padding: 20px; }
+      .profile-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+      .profile-stat { padding: 16px; }
+      .profile-stat-value { font-size: 22px; }
+      .profile-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .profile-btn { padding: 14px 8px; }
+      .profile-btn-icon { font-size: 22px; }
+      .profile-btn-label { font-size: 9px; }
+      .profile-orders { padding: 16px; }
+      .order-card { flex-direction: column; align-items: flex-start; gap: 8px; }
+    }
+    @media (max-width: 480px) { .profile-grid { grid-template-columns: repeat(2, 1fr); } }
   </style>
 </head>
 <body>
