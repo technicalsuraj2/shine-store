@@ -999,6 +999,58 @@ img { max-width: 100%; }
 
 /* ===== RESPONSIVE & PRO UI ===== */
 
+/* Bottom Tab Bar (mobile only) */
+.bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--white);
+  border-top: 1px solid rgba(0,0,0,0.06);
+  z-index: 5000;
+  justify-content: space-around;
+  align-items: center;
+  padding: 6px 0 env(safe-area-inset-bottom, 6px);
+  box-shadow: 0 -2px 20px rgba(0,0,0,0.06);
+}
+
+.bn-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--mid-grey);
+  transition: 0.2s;
+  padding: 4px 12px;
+  position: relative;
+  min-width: 56px;
+}
+.bn-item i { font-size: 20px; }
+.bn-icon-wrap { position: relative; display: inline-flex; }
+.bn-item span { font-size: 10px; font-weight: 600; letter-spacing: 0.3px; }
+.bn-item.active { color: var(--black); }
+.bn-item.active i { color: var(--gold); }
+
+.bn-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: var(--gold);
+  color: var(--black);
+  font-size: 9px;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 8px;
+  padding: 0 4px;
+}
+
 /* Hamburger Menu */
 .hamburger {
   display: none;
@@ -1026,6 +1078,9 @@ img { max-width: 100%; }
 /* Mobile Nav Overlay */
 @media (max-width: 768px) {
   .hamburger { display: block; }
+
+  .bottom-nav { display: flex; }
+  body { padding-bottom: 64px; }
 
   .navbar { padding: 0 16px; }
 

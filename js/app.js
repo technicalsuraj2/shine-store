@@ -45,6 +45,22 @@ function navigate(page) {
   if (page === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function bnavigate(page) {
+  closeMobileNav();
+  const items = $$('.bn-item');
+  items.forEach(i => i.classList.remove('active'));
+  if (page === 'home') {
+    items[0].classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    activeCategory = 'All';
+    renderCategories();
+    renderProducts($('#searchInput')?.value || '');
+  } else if (page === 'categories') {
+    items[1].classList.add('active');
+    document.getElementById('categoriesBar')?.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
 function toggleMobileNav() {
   const nav = $('#navActions');
   const hamburger = $('#hamburgerBtn');
@@ -329,6 +345,8 @@ function updateCartUI() {
   if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
   const cc = $('#cartCount');
   if (cc) cc.textContent = count;
+  const bnBadge = $('#bnCartBadge');
+  if (bnBadge) bnBadge.textContent = count;
 }
 
 function toggleCart() {
