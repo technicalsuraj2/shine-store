@@ -7,9 +7,9 @@ const DataStore = {
       this.seedUsers();
       this.seedCategories();
       this.seedCoupons();
-      this.seedBanners();
       localStorage.setItem('mf_data_version', version);
     }
+    if (!localStorage.getItem('mf_banners')) this.seedBanners();
     if (!localStorage.getItem('mf_reviews')) localStorage.setItem('mf_reviews', '[]');
     if (!localStorage.getItem('mf_cart')) localStorage.setItem('mf_cart', '[]');
     if (!localStorage.getItem('mf_wishlist')) localStorage.setItem('mf_wishlist', '[]');
