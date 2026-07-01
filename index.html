@@ -3,67 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SHINE — Premium Fashion</title>
+  <title>Mithila Fashions — Premium Fashion Store</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-  <!-- ===== NAVBAR ===== -->
   <nav class="navbar" id="navbar">
-    <div class="logo" onclick="navigate('home')">SHINE<span>.</span></div>
-
+    <div class="logo" onclick="navigate('home')">MITHILA<span>.</span></div>
     <div class="nav-search">
       <span class="search-icon">🔍</span>
-      <input type="text" placeholder="Search premium fashion..." id="searchInput" oninput="handleSearch(this.value)">
+      <input type="text" placeholder="Search products..." id="searchInput" oninput="handleSearch(this.value)">
     </div>
-
     <div class="nav-actions">
       <button class="nav-icon" id="wishlistBtn" onclick="showWishlist()">🤍</button>
-      <button class="nav-icon" onclick="toggleCart()">
-        🛒<span class="cart-badge" id="cartBadge">0</span>
-      </button>
+      <button class="nav-icon" onclick="toggleCart()">🛒<span class="cart-badge" id="cartBadge">0</span></button>
+      <button class="nav-icon" onclick="window.location='profile.html'">👤</button>
       <button class="user-btn" id="authBtn" onclick="openAuth()">Sign In</button>
     </div>
   </nav>
 
-  <!-- ===== HERO ===== -->
-  <section class="hero">
-    <div class="hero-bg-text">FASHION</div>
-    <div class="hero-content">
-      <div class="subtitle">New Season Collection</div>
-      <h1>ELEGANCE<br><strong>REDEFINED</strong></h1>
-      <p>Discover the latest trends in premium fashion. Handpicked pieces for those who appreciate the finest.</p>
-      <button class="hero-btn" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">Explore Collection</button>
-    </div>
+  <section class="hero-slider" id="heroSlider">
+    <div class="slider-container" id="sliderContainer"></div>
+    <div class="slider-dots" id="sliderDots"></div>
+    <button class="slider-arrow left" onclick="slideBanner(-1)">‹</button>
+    <button class="slider-arrow right" onclick="slideBanner(1)">›</button>
   </section>
 
-  <!-- ===== CATEGORIES ===== -->
+  <div class="coupon-strip" id="couponStrip">
+    <span>🎉 New User? Use Code <strong>NEWUSER</strong> — Get 30% OFF up to ₹1,500!</span>
+  </div>
+
   <div class="categories-bar" id="categoriesBar"></div>
 
-  <!-- ===== PRODUCTS ===== -->
   <section class="products-section" id="products">
     <div class="section-header">
-      <h2>Premium <strong>Collection</strong></h2>
-      <button class="view-all">View All →</button>
+      <h2>Featured <strong>Products</strong></h2>
+      <button class="view-all" onclick="document.getElementById('products').scrollIntoView({behavior:'smooth'})">View All →</button>
     </div>
     <div class="products-grid" id="productsGrid"></div>
   </section>
 
-  <!-- ===== NEWSLETTER ===== -->
-  <section class="newsletter">
-    <h3>Join the <strong>Exclusive</strong> Circle</h3>
-    <p>Subscribe for early access to new collections and members-only offers.</p>
-    <div class="newsletter-form">
-      <input type="email" placeholder="Enter your email address" id="newsEmail">
-      <button onclick="subscribeNews()">Subscribe</button>
-    </div>
-  </section>
-
-  <!-- ===== FOOTER ===== -->
-  <footer class="footer">
+  <div class="footer">
     <div class="footer-grid">
       <div class="footer-col">
-        <h4>SHINE.</h4>
+        <h4>MITHILA FASHIONS.</h4>
         <p>Premium fashion for the discerning. Since 2024.</p>
         <p style="margin-top:10px">✨ Elegance in every detail</p>
       </div>
@@ -90,63 +73,38 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span>© 2026 SHINE. All rights reserved.</span>
-      <span>Made with ❤️ for Suraj Jaan</span>
+      <span>© 2026 Mithila Fashions. All rights reserved.</span>
+      <span>Made with ❤️</span>
     </div>
-  </footer>
+  </div>
 
-  <!-- ===== AUTH MODAL ===== -->
   <div class="auth-overlay" id="authOverlay">
     <div class="auth-modal">
       <button class="close-auth" onclick="closeAuth()">✕</button>
-      <div class="logo" style="margin-bottom:10px">SHINE<span>.</span></div>
-      <div class="auth-title">Welcome to <strong>SHINE</strong></div>
+      <div class="logo" style="margin-bottom:10px">MITHILA<span>.</span></div>
+      <div class="auth-title">Welcome to <strong>Mithila Fashions</strong></div>
       <div class="auth-sub">Sign in or create your account</div>
-
       <div class="auth-tabs">
         <button class="auth-tab active" onclick="switchAuth('login')" id="tabLogin">Sign In</button>
         <button class="auth-tab" onclick="switchAuth('register')" id="tabRegister">Register</button>
       </div>
-
-      <!-- Login Form -->
       <form id="loginForm" onsubmit="handleLogin(event)">
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="loginEmail" placeholder="your@email.com" required>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="loginPass" placeholder="••••••••" required>
-        </div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="loginEmail" placeholder="your@email.com" required></div>
+        <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••" required></div>
         <button type="submit" class="submit-btn">Sign In</button>
         <div class="form-switch">Don't have an account? <a onclick="switchAuth('register')">Register</a></div>
       </form>
-
-      <!-- Register Form -->
       <form id="registerForm" style="display:none" onsubmit="handleRegister(event)">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" id="regName" placeholder="Your name" required>
-        </div>
-        <div class="form-group">
-          <label>Email Address</label>
-          <input type="email" id="regEmail" placeholder="your@email.com" required>
-        </div>
-        <div class="form-group">
-          <label>Phone Number</label>
-          <input type="tel" id="regPhone" placeholder="Phone number" required>
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="regPass" placeholder="Create password" required>
-        </div>
+        <div class="form-group"><label>Full Name</label><input type="text" id="regName" placeholder="Your name" required></div>
+        <div class="form-group"><label>Email Address</label><input type="email" id="regEmail" placeholder="your@email.com" required></div>
+        <div class="form-group"><label>Phone Number</label><input type="tel" id="regPhone" placeholder="Phone number" required></div>
+        <div class="form-group"><label>Password</label><input type="password" id="regPass" placeholder="Create password" required></div>
         <button type="submit" class="submit-btn">Create Account</button>
         <div class="form-switch">Already have an account? <a onclick="switchAuth('login')">Sign In</a></div>
       </form>
     </div>
   </div>
 
-  <!-- ===== CART DRAWER ===== -->
   <div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
   <div class="cart-drawer" id="cartDrawer">
     <div class="cart-drawer-header">
@@ -155,12 +113,15 @@
     </div>
     <div class="cart-drawer-items" id="cartItems"></div>
     <div class="cart-drawer-footer">
-      <div class="cart-d-total">
-        <span>Total</span>
-        <span id="cartTotal">₹0</span>
-      </div>
-      <button class="checkout-btn" onclick="goToCheckout()">Checkout</button>
+      <div class="cart-d-total"><span>Total</span><span id="cartTotal">₹0</span></div>
+      <button class="checkout-btn" onclick="goToCheckout()">Checkout →</button>
     </div>
+  </div>
+
+  <div class="quick-view-overlay" id="quickViewOverlay" onclick="closeQuickView()"></div>
+  <div class="quick-view-modal" id="quickViewModal">
+    <button class="qv-close" onclick="closeQuickView()">✕</button>
+    <div class="qv-content" id="qvContent"></div>
   </div>
 
   <script src="js/data.js"></script>

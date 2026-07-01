@@ -1,19 +1,15 @@
-// ===== ADMIN AUTH =====
 const ADMIN_USER = 'admin';
 const DEFAULT_PASS = 'admin123';
 let isLoggedIn = false;
+let uploadedImages = [];
 
-function getAdminPass() {
-  return localStorage.getItem('pf_admin_pass') || DEFAULT_PASS;
-}
+function getAdminPass() { return localStorage.getItem('mf_admin_pass') || DEFAULT_PASS; }
 
 function handleAdminLogin(e) {
   e.preventDefault();
-  const u = document.getElementById('adminUser').value;
-  const p = document.getElementById('adminPass').value;
-  if (u === ADMIN_USER && p === getAdminPass()) {
+  if (document.getElementById('adminUser').value === ADMIN_USER && document.getElementById('adminPass').value === getAdminPass()) {
     isLoggedIn = true;
-    localStorage.setItem('pf_admin_logged', 'true');
+    localStorage.setItem('mf_admin_logged', 'true');
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appMain').style.display = 'flex';
     initAdmin();
@@ -24,48 +20,54 @@ function handleAdminLogin(e) {
 
 function handleLogout() {
   isLoggedIn = false;
-  localStorage.removeItem('pf_admin_logged');
+  localStorage.removeItem('mf_admin_logged');
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('appMain').style.display = 'none';
 }
 
-// ===== ROUTING =====
 function showPage(page) {
   document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
-  document.getElementById(`page-${page}`).classList.add('active');
+  const el = document.getElementById(`page-${page}`);
+  if (el) el.classList.add('active');
   document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-  const titles = { dashboard: 'Dashboard', orders: 'Orders', products: 'Products', categories: 'Categories', users: 'Users', coupons: 'Coupons', settings: 'Settings' };
+  const titles = {
+    dashboard: 'Dashboard', orders: 'Orders', products: 'Products', addproduct: 'Add Product',
+    categories: 'Categories', users: 'Users', coupons: 'Coupons', banners: 'Banners',
+    reviews: 'Reviews', settings: 'Settings', backup: 'Backup & Restore',
+    analytics: 'Analytics', seo: 'SEO', pages: 'Pages', brands: 'Brands',
+    offers: 'Offers', newsletter: 'Newsletter', support: 'Support', shipping: 'Shipping'
+  };
   document.getElementById('pageTitle').textContent = titles[page] || 'Dashboard';
   renderPage(page);
 }
 
 function renderPage(page) {
-  switch(page) {
-    case 'dashboard': renderDashboard(); break;
-    case 'orders': renderOrders(); break;
-    case 'products': renderProducts(); break;
-    case 'categories': renderCategories(); break;
-    case 'users': renderUsers(); break;
-    case 'coupons': renderCoupons(); break;
-  }
+  const handlers = {
+    dashboard: renderDashboard, orders: renderOrders, products: renderProducts,
+    addproduct: openAddProduct, categories: renderCategories, users: renderUsers,
+    coupons: renderCoupons, banners: renderBanners, reviews: renderReviews,
+    analytics: renderAnalytics, brands: renderBrands, offers: renderOffers
+  };
+  if (handlers[page]) handlers[page]();
 }
 
-// ===== CLOCK =====
 function updateClock() {
   const c = document.getElementById('clock');
   if (c) c.textContent = new Date().toLocaleString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 setInterval(updateClock, 1000);
 
-// ===== DASHBOARD =====
 function renderDashboard() {
   const stats = DataStore.getStats();
+  const orders = DataStore.getOrders();
   const grid = document.getElementById('statsGrid');
   const cards = [
     { value: stats.totalOrders, label: 'Total Orders', icon: '📦', cls: 'gold', change: '+12% this month' },
     { value: '₹' + stats.totalRevenue.toLocaleString('en-IN'), label: 'Revenue', icon: '💰', cls: 'green', change: '+8% this month' },
-    { value: stats.totalUsers, label: 'Registered Users', icon: '👥', cls: 'blue', change: '+5% this month' },
+    { value: stats.totalUsers, label: 'Users', icon: '👥', cls: 'blue', change: '+5% this month' },
     { value: stats.totalProducts, label: 'Products', icon: '👗', cls: 'red', change: 'Stable' },
+    { value: stats.pendingOrders, label: 'Pending', icon: '⏳', cls: 'gold', change: 'Needs attention' },
+    { value: orders.filter(o => o.status === 'Delivered').length, label: 'Delivered', icon: '✅', cls: 'green', change: 'Completed' },
   ];
   grid.innerHTML = cards.map(c => `
     <div class="stat-card">
@@ -76,23 +78,25 @@ function renderDashboard() {
       <div class="stat-card-change ${c.change.includes('+') ? 'up' : 'down'}">${c.change}</div>
     </div>
   `).join('');
-
-  const orders = DataStore.getOrders().slice(0, 5);
-  document.getElementById('recentOrdersTable').innerHTML = orders.map(o => `
-    <tr>
-      <td><strong>${o.id}</strong></td>
-      <td>${o.customer}</td>
-      <td>₹${(o.total || 0).toLocaleString('en-IN')}</td>
-      <td><span class="status ${o.status.toLowerCase()}">${o.status}</span></td>
-      <td><button class="action-btn btn-sm" onclick="showPage('orders')">View</button></td>
-    </tr>
+  document.getElementById('recentOrdersTable').innerHTML = orders.slice(0, 5).map(o => `
+    <tr><td><strong>${o.id}</strong></td><td>${o.customer}</td><td>₹${(o.total||0).toLocaleString('en-IN')}</td><td><span class="status ${o.status.toLowerCase()}">${o.status}</span></td><td><button class="action-btn btn-sm" onclick="showPage('orders')">View</button></td></tr>
   `).join('');
-
-  const pendingCount = orders.filter(o => o.status === 'Pending').length;
-  document.getElementById('orderBadge').textContent = pendingCount || '0';
+  document.getElementById('orderBadge').textContent = orders.filter(o => o.status === 'Pending').length || '0';
 }
 
-// ===== ORDERS =====
+function renderAnalytics() {
+  const products = DataStore.getProducts();
+  const categories = DataStore.getCategories();
+  const totalReviews = DataStore.getProducts().reduce((s, p) => s + (p.reviews || 0), 0);
+  const topProducts = [...products].sort((a, b) => b.reviews - a.reviews).slice(0, 5);
+  document.getElementById('analyticsGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-card-header"><div><div class="stat-card-value">${categories.length}</div><div class="stat-card-label">Categories</div></div><div class="stat-card-icon gold">📁</div></div></div>
+    <div class="stat-card"><div class="stat-card-header"><div><div class="stat-card-value">${totalReviews}</div><div class="stat-card-label">Total Reviews</div></div><div class="stat-card-icon blue">⭐</div></div></div>
+    <div class="stat-card"><div class="stat-card-header"><div><div class="stat-card-value">${products.length}</div><div class="stat-card-label">Total Products</div></div><div class="stat-card-icon red">👗</div></div></div>
+    <div class="stat-card" style="grid-column:span 3"><h3 style="font-size:14px;font-weight:700;margin-bottom:15px">🏆 Top Products</h3>${topProducts.map(p => `<div style="padding:8px 0;border-bottom:1px solid var(--light-grey);font-size:13px">⭐ ${p.name} — ${p.reviews} reviews</div>`).join('')}</div>
+  `;
+}
+
 function renderOrders() {
   const orders = DataStore.getOrders();
   document.getElementById('ordersTable').innerHTML = orders.map(o => `
@@ -100,7 +104,7 @@ function renderOrders() {
       <td><strong>${o.id}</strong></td>
       <td>${o.customer}<br><small style="color:var(--mid-grey)">${o.email}</small></td>
       <td>${o.items.map(i => `${i.name} × ${i.qty}`).join(', ')}</td>
-      <td>₹${(o.total || 0).toLocaleString('en-IN')}</td>
+      <td>₹${(o.total||0).toLocaleString('en-IN')}</td>
       <td>${o.date}</td>
       <td><span class="status ${o.status.toLowerCase()}">${o.status}</span></td>
       <td>
@@ -116,23 +120,29 @@ function renderOrders() {
   `).join('');
 }
 
-function updateOrderStatus(id, status) {
-  DataStore.updateOrderStatus(id, status);
-  renderOrders();
-  renderDashboard();
-}
+function updateOrderStatus(id, status) { DataStore.updateOrderStatus(id, status); renderOrders(); renderDashboard(); }
 
-// ===== PRODUCTS =====
 function renderProducts() {
   const prods = DataStore.getProducts();
-  document.getElementById('productsTable').innerHTML = prods.map(p => `
+  const catFilter = document.getElementById('adminCategoryFilter');
+  if (catFilter) {
+    const cats = DataStore.getCategories();
+    catFilter.innerHTML = '<option value="">All Categories</option>' + cats.filter(c => c.name !== 'All').map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+  }
+  const searchVal = document.getElementById('adminSearchInput')?.value?.toLowerCase() || '';
+  const filterCat = document.getElementById('adminCategoryFilter')?.value || '';
+  let filtered = prods;
+  if (searchVal) filtered = filtered.filter(p => p.name.toLowerCase().includes(searchVal) || p.brand.toLowerCase().includes(searchVal));
+  if (filterCat) filtered = filtered.filter(p => p.category === filterCat);
+  document.getElementById('productsTable').innerHTML = filtered.map(p => `
     <tr>
       <td>${p.id}</td>
+      <td>${p.images && p.images[0] ? `<img src="${p.images[0]}" style="width:40px;height:40px;object-fit:cover">` : (p.emoji || '👗')}</td>
       <td><strong>${p.name}</strong></td>
       <td>${p.brand}</td>
       <td>${p.category}</td>
       <td>₹${p.price.toLocaleString('en-IN')}</td>
-      <td>${p.inStock ? '✅ In Stock' : '❌ Out'}</td>
+      <td>${p.inStock ? '✅' : '❌'}</td>
       <td>
         <button class="action-btn btn-sm" onclick="editProduct(${p.id})">✏️</button>
         <button class="action-btn btn-sm" onclick="deleteProduct(${p.id})">🗑️</button>
@@ -141,41 +151,81 @@ function renderProducts() {
   `).join('');
 }
 
-function openProductModal() {
-  document.getElementById('productModalTitle').textContent = 'Add Product';
-  document.getElementById('productForm').reset();
+function adminSearchProducts() { renderProducts(); }
+
+function openAddProduct() {
+  document.getElementById('addProductTitle').textContent = '➕ Add New Product';
+  document.getElementById('adminProductForm').reset();
   document.getElementById('prodId').value = '';
+  uploadedImages = [];
+  document.getElementById('imagePreviewContainer').innerHTML = '';
   const catSelect = document.getElementById('prodCategory');
   const cats = DataStore.getCategories();
   catSelect.innerHTML = cats.filter(c => c.name !== 'All').map(c => `<option value="${c.name}">${c.name}</option>`).join('');
-  document.getElementById('productModal').classList.add('open');
-}
-
-function closeProductModal() {
-  document.getElementById('productModal').classList.remove('open');
 }
 
 function editProduct(id) {
   const p = DataStore.getProduct(id);
   if (!p) return;
-  document.getElementById('productModalTitle').textContent = 'Edit Product';
+  showPage('addproduct');
+  document.getElementById('addProductTitle').textContent = '✏️ Edit Product';
   document.getElementById('prodId').value = p.id;
   document.getElementById('prodName').value = p.name;
   document.getElementById('prodBrand').value = p.brand;
   document.getElementById('prodPrice').value = p.price;
-  document.getElementById('prodOriginal').value = p.original;
+  document.getElementById('prodOriginal').value = p.original || '';
   document.getElementById('prodBadge').value = p.badge || '';
   document.getElementById('prodEmoji').value = p.emoji || '👗';
   document.getElementById('prodStock').value = p.inStock ? 'true' : 'false';
+  document.getElementById('prodDesc').value = p.description || '';
+  document.getElementById('prodSizes').value = (p.sizes || []).join(', ');
+  document.getElementById('prodColors').value = (p.colors || []).join(', ');
+  uploadedImages = p.images || [];
+  renderImagePreview();
   const catSelect = document.getElementById('prodCategory');
   const cats = DataStore.getCategories();
   catSelect.innerHTML = cats.filter(c => c.name !== 'All').map(c => `<option value="${c.name}" ${c.name === p.category ? 'selected' : ''}>${c.name}</option>`).join('');
-  document.getElementById('productModal').classList.add('open');
+}
+
+function handleImageUpload(event) {
+  const files = Array.from(event.target.files);
+  const remaining = 5 - uploadedImages.length;
+  if (files.length > remaining) { alert(`You can only upload ${remaining} more image(s). Max 5 total.`); return; }
+  files.forEach(file => {
+    if (file.size > 2 * 1024 * 1024) { alert(`File ${file.name} is too large (max 2MB)`); return; }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      uploadedImages.push(e.target.result);
+      if (uploadedImages.length === 1) renderImagePreview();
+      else renderImagePreview();
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
+}
+
+function renderImagePreview() {
+  const container = document.getElementById('imagePreviewContainer');
+  container.innerHTML = uploadedImages.map((img, i) => `
+    <div style="position:relative;width:80px;height:80px">
+      <img src="${img}" style="width:100%;height:100%;object-fit:cover;border:1px solid var(--light-grey)">
+      <button type="button" onclick="removeImage(${i})" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--red);color:white;border:none;border-radius:50%;font-size:12px;cursor:pointer">✕</button>
+      ${i === 0 ? '<div style="position:absolute;bottom:0;left:0;right:0;background:var(--gold);font-size:8px;text-align:center;font-weight:600">MAIN</div>' : ''}
+    </div>
+  `).join('');
+}
+
+function removeImage(idx) {
+  uploadedImages.splice(idx, 1);
+  renderImagePreview();
 }
 
 function saveProduct(e) {
   e.preventDefault();
   const id = document.getElementById('prodId').value;
+  if (uploadedImages.length < 1) { alert('Please upload at least 1 product image'); return; }
+  const sizes = document.getElementById('prodSizes').value.split(',').map(s => s.trim()).filter(Boolean);
+  const colors = document.getElementById('prodColors').value.split(',').map(c => c.trim()).filter(Boolean);
   const data = {
     name: document.getElementById('prodName').value,
     brand: document.getElementById('prodBrand').value,
@@ -185,19 +235,21 @@ function saveProduct(e) {
     badge: document.getElementById('prodBadge').value,
     emoji: document.getElementById('prodEmoji').value || '👗',
     inStock: document.getElementById('prodStock').value === 'true',
+    description: document.getElementById('prodDesc').value,
+    sizes, colors,
+    images: uploadedImages,
     bg: '#F5F0EB',
     rating: 4.5,
     reviews: 0,
   };
-
   if (id) {
     DataStore.updateProduct(parseInt(id), data);
+    alert('✅ Product updated!');
   } else {
     DataStore.addProduct(data);
+    alert('✅ Product added!');
   }
-
-  closeProductModal();
-  renderProducts();
+  showPage('products');
   renderDashboard();
 }
 
@@ -208,17 +260,68 @@ function deleteProduct(id) {
   renderDashboard();
 }
 
-// ===== CATEGORIES =====
 function renderCategories() {
   const cats = DataStore.getCategories();
   document.getElementById('categoriesTable').innerHTML = cats.map(c => `
-    <tr><td>${c.id}</td><td style="font-size:24px">${c.icon}</td><td>${c.name}</td></tr>
+    <tr>
+      <td>${c.id}</td>
+      <td style="font-size:24px">${c.icon}</td>
+      <td>${c.name}</td>
+      <td><button class="action-btn btn-sm" onclick="editCategory(${c.id})">✏️</button><button class="action-btn btn-sm" onclick="deleteCategory(${c.id})">🗑️</button></td>
+    </tr>
   `).join('');
 }
 
-// ===== USERS =====
+function addCategory() {
+  const name = prompt('Category name:');
+  if (!name) return;
+  const icon = prompt('Category emoji/icon:', '📁');
+  if (!icon) return;
+  const cats = DataStore.getCategories();
+  cats.push({ id: Date.now(), name, icon, image: '' });
+  DataStore.saveCategories(cats);
+  renderCategories();
+  updateCategorySelects();
+}
+
+function editCategory(id) {
+  const cats = DataStore.getCategories();
+  const c = cats.find(x => x.id === id);
+  if (!c) return;
+  const name = prompt('Category name:', c.name);
+  if (!name) return;
+  const icon = prompt('Icon:', c.icon);
+  if (!icon) return;
+  c.name = name;
+  c.icon = icon;
+  DataStore.saveCategories(cats);
+  renderCategories();
+  updateCategorySelects();
+}
+
+function deleteCategory(id) {
+  if (!confirm('Delete this category?')) return;
+  const cats = DataStore.getCategories();
+  DataStore.saveCategories(cats.filter(c => c.id !== id));
+  renderCategories();
+  updateCategorySelects();
+}
+
+function updateCategorySelects() {
+  const cats = DataStore.getCategories().filter(c => c.name !== 'All');
+  document.querySelectorAll('#prodCategory').forEach(el => {
+    if (el) el.innerHTML = cats.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
+  });
+  const filterEl = document.getElementById('adminCategoryFilter');
+  if (filterEl) {
+    const current = filterEl.value;
+    filterEl.innerHTML = '<option value="">All Categories</option>' + cats.map(c => `<option value="${c.name}" ${c.name === current ? 'selected' : ''}>${c.name}</option>`).join('');
+  }
+}
+
 function renderUsers() {
   const users = DataStore.getUsers();
+  const orders = DataStore.getOrders();
   document.getElementById('usersTable').innerHTML = users.map(u => `
     <tr>
       <td>${u.id}</td>
@@ -226,11 +329,11 @@ function renderUsers() {
       <td>${u.email}</td>
       <td>${u.phone || '-'}</td>
       <td>${u.createdAt || '-'}</td>
+      <td>${orders.filter(o => o.email === u.email).length}</td>
     </tr>
   `).join('');
 }
 
-// ===== COUPONS =====
 function renderCoupons() {
   const coupons = DataStore.getCoupons();
   document.getElementById('couponsTable').innerHTML = coupons.map(c => `
@@ -239,11 +342,28 @@ function renderCoupons() {
       <td>${c.type === 'percent' ? c.discount + '%' : '₹' + c.discount}</td>
       <td>${c.type === 'percent' ? 'Percentage' : 'Flat'}</td>
       <td>₹${c.minOrder}</td>
+      <td>${c.maxDiscount ? '₹' + c.maxDiscount : '∞'}</td>
       <td>${c.uses}/${c.maxUses}</td>
       <td>${c.active ? '✅ Active' : '❌ Inactive'}</td>
-      <td><button class="action-btn btn-sm" onclick="toggleCoupon(${c.id})">${c.active ? 'Disable' : 'Enable'}</button></td>
+      <td><button class="action-btn btn-sm" onclick="toggleCoupon(${c.id})">${c.active ? 'Disable' : 'Enable'}</button><button class="action-btn btn-sm" onclick="deleteCoupon(${c.id})">🗑️</button></td>
     </tr>
   `).join('');
+}
+
+function addCoupon() {
+  const code = prompt('Coupon code:');
+  if (!code) return;
+  const discount = parseFloat(prompt('Discount amount/percent:'));
+  if (!discount) return;
+  const type = prompt('Type (percent/flat):', 'percent');
+  if (!['percent', 'flat'].includes(type)) return;
+  const minOrder = parseFloat(prompt('Minimum order amount (₹):', '0')) || 0;
+  const maxDiscount = parseFloat(prompt('Max discount (₹, 0 = unlimited):', '0')) || 0;
+  const maxUses = parseInt(prompt('Max uses:', '100')) || 100;
+  const coupons = DataStore.getCoupons();
+  coupons.push({ id: Date.now(), code: code.toUpperCase(), discount, type, minOrder, uses: 0, maxUses, maxDiscount, active: true });
+  DataStore.saveCoupons(coupons);
+  renderCoupons();
 }
 
 function toggleCoupon(id) {
@@ -252,48 +372,141 @@ function toggleCoupon(id) {
   if (c) { c.active = !c.active; DataStore.saveCoupons(coupons); renderCoupons(); }
 }
 
-function addCoupon() {
-  const code = prompt('Coupon code:');
-  if (!code) return;
-  const discount = prompt('Discount amount/number:');
-  if (!discount) return;
-  const type = confirm('OK = Percentage, Cancel = Flat') ? 'percent' : 'flat';
+function deleteCoupon(id) {
+  if (!confirm('Delete this coupon?')) return;
   const coupons = DataStore.getCoupons();
-  coupons.push({
-    id: Date.now(), code: code.toUpperCase(), discount: parseFloat(discount),
-    type, minOrder: 0, uses: 0, maxUses: 100, active: true
-  });
-  DataStore.saveCoupons(coupons);
+  DataStore.saveCoupons(coupons.filter(c => c.id !== id));
   renderCoupons();
 }
 
-// ===== SETTINGS =====
+function renderBanners() {
+  const banners = DataStore.getBanners();
+  document.getElementById('bannersTable').innerHTML = banners.map(b => `
+    <tr>
+      <td><strong>${b.title}</strong></td>
+      <td>${b.subtitle}</td>
+      <td><span style="display:inline-block;width:30px;height:20px;background:${b.bg};border:1px solid #ddd;vertical-align:middle"></span> ${b.bg}</td>
+      <td>${b.active ? '✅ Active' : '❌ Inactive'}</td>
+      <td>
+        <button class="action-btn btn-sm" onclick="editBanner(${b.id})">✏️</button>
+        <button class="action-btn btn-sm" onclick="toggleBanner(${b.id})">${b.active ? 'Disable' : 'Enable'}</button>
+        <button class="action-btn btn-sm" onclick="deleteBanner(${b.id})">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function addBanner() {
+  const title = prompt('Banner title:');
+  if (!title) return;
+  const subtitle = prompt('Banner subtitle:');
+  const bg = prompt('Background color (hex):', '#FF6B6B');
+  const banners = DataStore.getBanners();
+  banners.push({ id: Date.now(), image: '', title, subtitle: subtitle || '', link: '#', bg: bg || '#FF6B6B', active: true });
+  DataStore.saveBanners(banners);
+  renderBanners();
+}
+
+function editBanner(id) {
+  const banners = DataStore.getBanners();
+  const b = banners.find(x => x.id === id);
+  if (!b) return;
+  const title = prompt('Title:', b.title);
+  if (!title) return;
+  b.title = title;
+  b.subtitle = prompt('Subtitle:', b.subtitle) || '';
+  b.bg = prompt('Background color:', b.bg) || '#FF6B6B';
+  DataStore.saveBanners(banners);
+  renderBanners();
+}
+
+function toggleBanner(id) {
+  const banners = DataStore.getBanners();
+  const b = banners.find(x => x.id === id);
+  if (b) { b.active = !b.active; DataStore.saveBanners(banners); renderBanners(); }
+}
+
+function deleteBanner(id) {
+  if (!confirm('Delete this banner?')) return;
+  const banners = DataStore.getBanners();
+  DataStore.saveBanners(banners.filter(b => b.id !== id));
+  renderBanners();
+}
+
+function renderReviews() {
+  const all = JSON.parse(localStorage.getItem('mf_reviews')) || [];
+  const products = DataStore.getProducts();
+  document.getElementById('reviewsTable').innerHTML = (all.length === 0 ? [{id:0, productId:0, name:'-', rating:'-', comment:'No reviews yet', date:'-'}] : all).map(r => {
+    const p = products.find(x => x.id === r.productId);
+    return `<tr><td>${p ? p.name : 'Unknown'}</td><td>${r.name}</td><td>${'⭐'.repeat(r.rating)}</td><td>${r.comment}</td><td>${r.date || '-'}</td><td><button class="action-btn btn-sm" onclick="deleteReview(${r.id})">🗑️</button></td></tr>`;
+  }).join('');
+}
+
+function deleteReview(id) {
+  if (!confirm('Delete this review?')) return;
+  let all = JSON.parse(localStorage.getItem('mf_reviews')) || [];
+  all = all.filter(r => r.id !== id);
+  localStorage.setItem('mf_reviews', JSON.stringify(all));
+  renderReviews();
+}
+
+function renderBrands() {
+  const products = DataStore.getProducts();
+  const brands = [...new Set(products.map(p => p.brand))];
+  document.getElementById('brandsTable').innerHTML = brands.map(b => `
+    <tr><td><strong>${b}</strong></td><td>${products.filter(p => p.brand === b).length} products</td><td><button class="action-btn btn-sm" onclick="alert('Brand: ${b}')">View</button></td></tr>
+  `).join('');
+}
+
+function addBrand() {
+  alert('Brands are auto-created from product brands.');
+}
+
+function renderOffers() {
+  document.getElementById('offersTable').innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--mid-grey)">Use Coupons to create offers. Offers appear in banner slides.</td></tr>';
+}
+
+function addOffer() {
+  alert('Create offers via Coupons section. Add banner slides in Banners section.');
+}
+
 function saveSettings() {
   const pass = document.getElementById('setNewPass').value;
   if (pass) {
-    if (pass.length < 4) {
-      alert('Password must be at least 4 characters');
-      return;
-    }
-    localStorage.setItem('pf_admin_pass', pass);
+    if (pass.length < 4) { alert('Password must be at least 4 characters'); return; }
+    localStorage.setItem('mf_admin_pass', pass);
     document.getElementById('setNewPass').value = '';
-    alert('✅ Admin password updated successfully!');
+    alert('✅ Password updated!');
   } else {
-    alert('Settings saved!');
+    alert('✅ Settings saved!');
   }
 }
 
-// ===== BACKUP & RESTORE =====
+let storeOpen = true;
+function toggleStoreStatus() {
+  storeOpen = !storeOpen;
+  document.getElementById('storeStatusBtn').textContent = storeOpen ? '🔴 Close Store' : '🟢 Open Store';
+  alert(storeOpen ? 'Store is now OPEN' : 'Store is now CLOSED');
+}
+
+function saveSeo() {
+  alert('✅ SEO settings saved!');
+}
+
+function saveShipping() {
+  alert('✅ Shipping settings saved!');
+}
+
 function exportBackup() {
   const data = DataStore.exportData();
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `shine-backup-${new Date().toISOString().slice(0,10)}.json`;
+  a.download = `mithila-backup-${new Date().toISOString().slice(0,10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  alert('✅ Backup downloaded successfully!');
+  alert('✅ Backup downloaded!');
 }
 
 function importBackup(event) {
@@ -305,35 +518,23 @@ function importBackup(event) {
       const data = JSON.parse(e.target.result);
       const result = DataStore.importData(data);
       if (result.error) { alert('❌ ' + result.error); return; }
-      alert('✅ Data imported successfully! Refreshing...');
-      renderDashboard();
-      renderOrders();
-      renderProducts();
-      renderCategories();
-      renderUsers();
-      renderCoupons();
-    } catch(err) {
-      alert('❌ Invalid file format');
-    }
+      alert('✅ Data imported! Refreshing...');
+      Object.values({dashboard:1,orders:1,products:1,categories:1,users:1,coupons:1,banners:1,reviews:1,brands:1}).forEach(() => {});
+      location.reload();
+    } catch(err) { alert('❌ Invalid file format'); }
   };
   reader.readAsText(file);
   event.target.value = '';
 }
 
 function resetAllData() {
-  if (!confirm('⚠️ This will DELETE ALL store data (products, orders, users, coupons). Are you sure?')) return;
-  if (!confirm('Last chance! All data will be lost. Proceed?')) return;
+  if (!confirm('⚠️ DELETE ALL DATA?')) return;
+  if (!confirm('Are you sure?')) return;
   DataStore.clearAllData();
-  alert('✅ All data reset to defaults. Refreshing...');
-  renderDashboard();
-  renderOrders();
-  renderProducts();
-  renderCategories();
-  renderUsers();
-  renderCoupons();
+  alert('✅ All data reset to defaults');
+  location.reload();
 }
 
-// ===== INIT =====
 function initAdmin() {
   renderDashboard();
   renderOrders();
@@ -341,12 +542,17 @@ function initAdmin() {
   renderCategories();
   renderUsers();
   renderCoupons();
+  renderBanners();
+  renderReviews();
+  renderBrands();
+  renderOffers();
+  renderAnalytics();
+  updateCategorySelects();
   updateClock();
 }
 
-// Auto-login if already logged in via localStorage
 document.addEventListener('DOMContentLoaded', () => {
-  if (localStorage.getItem('pf_admin_logged')) {
+  if (localStorage.getItem('mf_admin_logged')) {
     isLoggedIn = true;
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('appMain').style.display = 'flex';

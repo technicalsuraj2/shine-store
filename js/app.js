@@ -1,10 +1,10 @@
-// ===== STATE =====
-let currentUser = JSON.parse(localStorage.getItem('pf_current_user')) || null;
+let currentUser = JSON.parse(localStorage.getItem('mf_current_user')) || null;
 let activeCategory = 'All';
 let cartItems = DataStore.getCart();
 let wishlistItems = DataStore.getWishlist();
+let currentSlide = 0;
+let slideInterval;
 
-// ===== UTILITY =====
 function $(s) { return document.querySelector(s); }
 function $$(s) { return document.querySelectorAll(s); }
 
@@ -19,31 +19,81 @@ function showToast(msg, type = 'gold') {
   t.className = `toast ${type}`;
   t.innerHTML = `<span>${type === 'gold' ? '✨' : '❌'}</span> ${msg}`;
   document.body.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
+  setTimeout(() => t.remove(), 3500);
 }
 
-// ===== NAVIGATION =====
 function navigate(page) {
   if (page === 'home') window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ===== CATEGORIES =====
+function renderBanners() {
+  const container = $('#sliderContainer');
+  const dots = $('#sliderDots');
+  if (!container) return;
+  const banners = DataStore.getBanners().filter(b => b.active);
+  if (banners.length === 0) return;
+  container.innerHTML = banners.map((b, i) => `
+    <div class="slide" style="background:${b.bg};display:${i === 0 ? 'flex' : 'none'}">
+      <div class="slide-content">
+        <h2>${b.title}</h2>
+        <p>${b.subtitle}</p>
+        ${b.link ? '<a href="'+b.link+'" class="slide-btn">Shop Now →</a>' : ''}
+      </div>
+      ${b.image ? `<img src="${b.image}" alt="${b.title}" class="slide-img">` : `<div class="slide-emoji">🎉</div>`}
+    </div>
+  `).join('');
+  dots.innerHTML = banners.map((_, i) => `<span class="dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></span>`).join('');
+  currentSlide = 0;
+  startSlideShow();
+}
+
+function startSlideShow() {
+  if (slideInterval) clearInterval(slideInterval);
+  slideInterval = setInterval(() => slideBanner(1), 4000);
+}
+
+function slideBanner(dir) {
+  const slides = $$('.slide');
+  const dots = $$('.dot');
+  if (slides.length === 0) return;
+  slides[currentSlide].style.display = 'none';
+  dots[currentSlide]?.classList.remove('active');
+  currentSlide = (currentSlide + dir + slides.length) % slides.length;
+  slides[currentSlide].style.display = 'flex';
+  dots[currentSlide]?.classList.add('active');
+  startSlideShow();
+}
+
+function goToSlide(n) {
+  const slides = $$('.slide');
+  const dots = $$('.dot');
+  if (slides.length === 0) return;
+  slides[currentSlide].style.display = 'none';
+  dots[currentSlide]?.classList.remove('active');
+  currentSlide = n;
+  slides[currentSlide].style.display = 'flex';
+  dots[currentSlide]?.classList.add('active');
+  startSlideShow();
+}
+
 function renderCategories() {
   const bar = $('#categoriesBar');
   if (!bar) return;
   const cats = DataStore.getCategories();
-  bar.innerHTML = cats.map(c =>
-    `<button class="cat-btn ${c.name === activeCategory ? 'active' : ''}" onclick="filterCategory('${c.name}')">${c.icon} ${c.name}</button>`
-  ).join('');
+  bar.innerHTML = cats.map(c => `
+    <button class="cat-circle ${c.name === activeCategory ? 'active' : ''}" onclick="filterCategory('${c.name}')">
+      <span class="cat-circle-icon">${c.icon}</span>
+      <span class="cat-circle-label">${c.name}</span>
+    </button>
+  `).join('');
 }
 
 function filterCategory(cat) {
   activeCategory = cat;
   renderCategories();
-  renderProducts();
+  renderProducts($('#searchInput')?.value || '');
 }
 
-// ===== PRODUCTS =====
 function renderProducts(search) {
   const grid = $('#productsGrid');
   if (!grid) return;
@@ -51,22 +101,26 @@ function renderProducts(search) {
   if (activeCategory !== 'All') prods = prods.filter(p => p.category === activeCategory);
   if (search) {
     const q = search.toLowerCase();
-    prods = prods.filter(p => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q));
+    prods = prods.filter(p => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+  }
+  if (prods.length === 0) {
+    grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--mid-grey)"><div style="font-size:60px;margin-bottom:20px">📦</div><h3>No products found</h3></div>';
+    return;
   }
   grid.innerHTML = prods.map((p, i) => `
-    <div class="product-card" style="animation-delay:${i * 0.06}s">
+    <div class="product-card" style="animation-delay:${i * 0.04}s" onclick="openQuickView(${p.id})">
       ${p.badge ? `<div class="product-badge ${p.badge === 'Sale' ? 'sale' : p.badge === 'Luxe' ? 'gold' : ''}">${p.badge}</div>` : ''}
-      <button class="product-wishlist ${wishlistItems.includes(p.id) ? 'active' : ''}" onclick="toggleWishlist(${p.id});event.stopPropagation()">${wishlistItems.includes(p.id) ? '❤️' : '🤍'}</button>
-      <div class="product-img-wrap" style="background:${p.bg}">
-        <div class="emoji-bg">${p.emoji}</div>
-        <div class="product-main-img">${p.emoji}</div>
-        <button class="product-add" onclick="addToCart(${p.id});event.stopPropagation()">+</button>
+      <button class="product-wishlist ${wishlistItems.includes(p.id) ? 'active' : ''}" onclick="event.stopPropagation();toggleWishlist(${p.id})">${wishlistItems.includes(p.id) ? '❤️' : '🤍'}</button>
+      <div class="product-img-wrap">
+        ${p.images && p.images[0] ? `<img src="${p.images[0]}" alt="${p.name}" class="product-img">` : `<div class="product-main-img">${p.emoji || '👗'}</div>`}
+        <button class="product-add" onclick="event.stopPropagation();addToCart(${p.id})">+</button>
       </div>
-      <div class="product-info" onclick="quickView(${p.id})">
+      <div class="product-info">
         <div class="product-brand">${p.brand}</div>
         <div class="product-name">${p.name}</div>
         <div class="product-rating">⭐ ${p.rating} <span>(${p.reviews})</span></div>
-        <div class="product-price">${formatPrice(p.price)} <s>${formatPrice(p.original)}</s></div>
+        <div class="product-price">${formatPrice(p.price)} ${p.original ? `<s>${formatPrice(p.original)}</s>` : ''}</div>
+        ${p.original && p.original > p.price ? `<div class="product-off">${Math.round((1 - p.price/p.original) * 100)}% OFF</div>` : ''}
       </div>
     </div>
   `).join('');
@@ -74,15 +128,107 @@ function renderProducts(search) {
 
 function handleSearch(val) {
   renderProducts(val);
+  if (val) activeCategory = 'All';
+  renderCategories();
 }
 
-function quickView(id) {
+function openQuickView(id) {
   const p = DataStore.getProduct(id);
   if (!p) return;
-  showToast(`${p.name} — ${formatPrice(p.price)}`, 'gold');
+  const container = $('#qvContent');
+  const inWishlist = wishlistItems.includes(p.id);
+  const inCart = cartItems.find(i => i.id === p.id);
+
+  let galleryHtml = '';
+  if (p.images && p.images.length > 0) {
+    galleryHtml = `<div class="qv-gallery">${p.images.map((img, i) => `<img src="${img}" alt="${p.name}" class="qv-img" onclick="currentQvImg=${i};updateQvGallery()">`).join('')}</div>`;
+    galleryHtml += `<div class="qv-main-img"><img src="${p.images[0]}" id="qvMainImage" alt="${p.name}"></div>`;
+  } else {
+    galleryHtml = `<div class="qv-main-img" style="background:${p.bg || '#f5f5f5'}"><div class="qv-emoji">${p.emoji || '👗'}</div></div>`;
+  }
+
+  const similar = DataStore.getProducts().filter(x => x.category === p.category && x.id !== p.id).slice(0, 8);
+  const reviews = DataStore.getReviews(p.id);
+
+  container.innerHTML = `
+    <div class="qv-layout">
+      <div class="qv-left">${galleryHtml}</div>
+      <div class="qv-right">
+        <div class="qv-brand">${p.brand}</div>
+        <h2 class="qv-name">${p.name}</h2>
+        <div class="qv-rating">⭐ ${p.rating} <span>(${p.reviews} reviews)</span></div>
+        <div class="qv-price-row">
+          <span class="qv-price">${formatPrice(p.price)}</span>
+          ${p.original ? `<span class="qv-original"><s>${formatPrice(p.original)}</s></span>` : ''}
+          ${p.original && p.original > p.price ? `<span class="qv-off">${Math.round((1 - p.price/p.original) * 100)}% OFF</span>` : ''}
+        </div>
+        ${p.description ? `<p class="qv-desc">${p.description}</p>` : ''}
+        ${p.sizes ? `<div class="qv-section"><h4>Size</h4><div class="qv-sizes">${p.sizes.map(s => `<button class="qv-size-btn" onclick="$$('.qv-size-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">${s}</button>`).join('')}</div></div>` : ''}
+        ${p.colors ? `<div class="qv-section"><h4>Color</h4><div class="qv-colors">${p.colors.map(c => `<button class="qv-color-btn" style="background:${c.toLowerCase()}" onclick="$$('.qv-color-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" title="${c}"></button>`).join('')}</div></div>` : ''}
+        <div class="qv-actions">
+          <button class="qv-btn qv-cart" onclick="addToCart(${p.id});closeQuickView()">${inCart ? '✓ Added to Cart' : 'Add to Cart'}</button>
+          <button class="qv-btn qv-wishlist ${inWishlist ? 'active' : ''}" onclick="toggleWishlist(${p.id})">${inWishlist ? '❤️' : '🤍'} Wishlist</button>
+        </div>
+        <div class="qv-section"><h4>Delivery</h4><p style="font-size:13px;color:var(--mid-grey)">Free delivery on orders above ₹5,000 • COD available</p></div>
+      </div>
+    </div>
+    <div class="qv-section" style="margin-top:30px">
+      <h4>Reviews (${reviews.length})</h4>
+      ${reviews.length === 0 ? '<p style="font-size:13px;color:var(--mid-grey)">No reviews yet. Be the first to review!</p>' : reviews.slice(0, 5).map(r => `
+        <div class="review-item"><strong>${r.name}</strong> <span style="color:var(--gold)">${'⭐'.repeat(r.rating)}</span><p>${r.comment}</p><small style="color:var(--mid-grey)">${r.date}</small></div>
+      `).join('')}
+      <button class="qv-btn qv-outline" style="margin-top:10px" onclick="showReviewForm(${p.id})">✏️ Write a Review</button>
+    </div>
+    ${similar.length > 0 ? `
+    <div class="qv-section" style="margin-top:30px">
+      <h4>Similar Products</h4>
+      <div class="similar-grid">${similar.map(x => `
+        <div class="similar-card" onclick="openQuickView(${x.id})">
+          <div class="similar-img">${x.images && x.images[0] ? `<img src="${x.images[0]}" alt="${x.name}">` : (x.emoji || '👗')}</div>
+          <div class="similar-name">${x.name}</div>
+          <div class="similar-price">${formatPrice(x.price)}</div>
+        </div>
+      `).join('')}</div>
+    </div>` : ''}
+  `;
+  currentQvImg = 0;
+  window._qvProductId = p.id;
+  $('#quickViewOverlay').classList.add('open');
+  $('#quickViewModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
-// ===== CART =====
+let currentQvImg = 0;
+
+function updateQvGallery() {
+  const main = document.getElementById('qvMainImage');
+  if (main && window._qvProductId) {
+    const p = DataStore.getProduct(window._qvProductId);
+    if (p && p.images && p.images[currentQvImg]) {
+      main.src = p.images[currentQvImg];
+    }
+  }
+}
+
+function closeQuickView() {
+  $('#quickViewOverlay').classList.remove('open');
+  $('#quickViewModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function showReviewForm(productId) {
+  if (!currentUser) { showToast('Please sign in to review', 'error'); openAuth(); return; }
+  const name = prompt('Your name:', currentUser.name);
+  if (!name) return;
+  const rating = prompt('Rating (1-5):', '5');
+  if (!rating || rating < 1 || rating > 5) return;
+  const comment = prompt('Your review:');
+  if (!comment) return;
+  DataStore.addReview({ productId, name, rating: parseInt(rating), comment });
+  showToast('Review submitted! ⭐', 'gold');
+  openQuickView(productId);
+}
+
 function addToCart(id) {
   const existing = cartItems.find(i => i.id === id);
   if (existing) existing.qty += 1;
@@ -90,7 +236,7 @@ function addToCart(id) {
   saveCart();
   updateCartUI();
   const p = DataStore.getProduct(id);
-  showToast(`${p.name} added to bag`, 'gold');
+  showToast(`${p ? p.name : 'Product'} added to bag`, 'gold');
 }
 
 function removeFromCart(id) {
@@ -110,24 +256,16 @@ function updateQty(id, delta) {
   renderCartDrawer();
 }
 
-function saveCart() {
-  DataStore.saveCart(cartItems);
-}
+function saveCart() { DataStore.saveCart(cartItems); }
 
 function getCartTotal() {
-  return cartItems.reduce((s, i) => {
-    const p = DataStore.getProduct(i.id);
-    return s + (p ? p.price * i.qty : 0);
-  }, 0);
+  return cartItems.reduce((s, i) => { const p = DataStore.getProduct(i.id); return s + (p ? p.price * i.qty : 0); }, 0);
 }
 
 function updateCartUI() {
   const count = cartItems.reduce((s, i) => s + i.qty, 0);
   const badge = $('#cartBadge');
-  if (badge) {
-    badge.textContent = count;
-    badge.style.display = count > 0 ? 'flex' : 'none';
-  }
+  if (badge) { badge.textContent = count; badge.style.display = count > 0 ? 'flex' : 'none'; }
   const cc = $('#cartCount');
   if (cc) cc.textContent = count;
 }
@@ -142,33 +280,20 @@ function renderCartDrawer() {
   const container = $('#cartItems');
   const totalEl = $('#cartTotal');
   if (!container) return;
-
   if (cartItems.length === 0) {
     container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--mid-grey)"><div style="font-size:50px;margin-bottom:15px">🛍️</div><p>Your bag is empty</p></div>';
     if (totalEl) totalEl.textContent = '₹0';
     return;
   }
-
   container.innerHTML = cartItems.map(i => {
     const p = DataStore.getProduct(i.id);
     if (!p) return '';
-    return `
-      <div class="cart-d-item">
-        <div class="cart-d-item-img" style="background:${p.bg}">${p.emoji}</div>
-        <div class="cart-d-item-info">
-          <h4>${p.name}</h4>
-          <div class="item-price">${formatPrice(p.price)}</div>
-          <div class="cart-d-qty">
-            <button onclick="updateQty(${p.id}, -1)">−</button>
-            <span>${i.qty}</span>
-            <button onclick="updateQty(${p.id}, 1)">+</button>
-          </div>
-        </div>
-        <button class="cart-d-item-remove" onclick="removeFromCart(${p.id})">✕</button>
-      </div>
-    `;
+    return `<div class="cart-d-item">
+      <div class="cart-d-item-img">${p.images && p.images[0] ? `<img src="${p.images[0]}" alt="${p.name}">` : (p.emoji || '👗')}</div>
+      <div class="cart-d-item-info"><h4>${p.name}</h4><div class="item-price">${formatPrice(p.price)}</div><div class="cart-d-qty"><button onclick="updateQty(${p.id}, -1)">−</button><span>${i.qty}</span><button onclick="updateQty(${p.id}, 1)">+</button></div></div>
+      <button class="cart-d-item-remove" onclick="removeFromCart(${p.id})">✕</button>
+    </div>`;
   }).join('');
-
   if (totalEl) totalEl.textContent = formatPrice(getCartTotal());
 }
 
@@ -179,7 +304,6 @@ function goToCheckout() {
   window.location.href = 'checkout.html';
 }
 
-// ===== WISHLIST =====
 function toggleWishlist(id) {
   const idx = wishlistItems.indexOf(id);
   if (idx > -1) wishlistItems.splice(idx, 1);
@@ -190,41 +314,43 @@ function toggleWishlist(id) {
 
 function showWishlist() {
   if (wishlistItems.length === 0) { showToast('Your wishlist is empty', 'error'); return; }
-  const prods = wishlistItems.map(id => DataStore.getProduct(id)).filter(Boolean);
-  const names = prods.map(p => p.name).join(', ');
-  showToast(`❤️ ${prods.length} items in wishlist`, 'gold');
+  renderProducts();
+  activeCategory = 'All';
+  renderCategories();
+  const ids = wishlistItems;
+  const grid = $('#productsGrid');
+  if (!grid) return;
+  const prods = ids.map(id => DataStore.getProduct(id)).filter(Boolean);
+  if (prods.length === 0) { grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:80px"><h3>Wishlist is empty</h3></div>'; return; }
+  grid.innerHTML = prods.map((p, i) => `
+    <div class="product-card" onclick="openQuickView(${p.id})" style="animation-delay:${i*0.04}s">
+      ${p.badge ? `<div class="product-badge">${p.badge}</div>` : ''}
+      <button class="product-wishlist active" onclick="event.stopPropagation();toggleWishlist(${p.id})">❤️</button>
+      <div class="product-img-wrap">${p.images && p.images[0] ? `<img src="${p.images[0]}" class="product-img">` : `<div class="product-main-img">${p.emoji || '👗'}</div>`}
+        <button class="product-add" onclick="event.stopPropagation();addToCart(${p.id})">+</button>
+      </div>
+      <div class="product-info"><div class="product-brand">${p.brand}</div><div class="product-name">${p.name}</div><div class="product-price">${formatPrice(p.price)}</div></div>
+    </div>
+  `).join('');
+  showToast(`❤️ ${prods.length} wishlist items`, 'gold');
 }
 
-// ===== AUTH =====
 function openAuth() { $('#authOverlay').classList.add('open'); }
 function closeAuth() { $('#authOverlay').classList.remove('open'); }
 
 function switchAuth(tab) {
-  const login = $('#loginForm');
-  const register = $('#registerForm');
-  const tL = $('#tabLogin');
-  const tR = $('#tabRegister');
-  if (tab === 'login') {
-    login.style.display = 'block';
-    register.style.display = 'none';
-    tL.classList.add('active');
-    tR.classList.remove('active');
-  } else {
-    login.style.display = 'none';
-    register.style.display = 'block';
-    tR.classList.add('active');
-    tL.classList.remove('active');
-  }
+  const login = $('#loginForm'), register = $('#registerForm'), tL = $('#tabLogin'), tR = $('#tabRegister');
+  if (tab === 'login') { login.style.display = 'block'; register.style.display = 'none'; tL.classList.add('active'); tR.classList.remove('active'); }
+  else { login.style.display = 'none'; register.style.display = 'block'; tR.classList.add('active'); tL.classList.remove('active'); }
 }
 
 function handleLogin(e) {
   e.preventDefault();
-  const email = $('#loginEmail').value;
-  const pass = $('#loginPass').value;
+  const email = $('#loginEmail').value, pass = $('#loginPass').value;
   const result = DataStore.loginUser(email, pass);
   if (result.error) { showToast(result.error, 'error'); return; }
   currentUser = result.user;
-  localStorage.setItem('pf_current_user', JSON.stringify(currentUser));
+  localStorage.setItem('mf_current_user', JSON.stringify(currentUser));
   closeAuth();
   updateUserUI();
   showToast(`Welcome back, ${currentUser.name}! ✨`, 'gold');
@@ -232,15 +358,12 @@ function handleLogin(e) {
 
 function handleRegister(e) {
   e.preventDefault();
-  const name = $('#regName').value;
-  const email = $('#regEmail').value;
-  const phone = $('#regPhone').value;
-  const pass = $('#regPass').value;
+  const name = $('#regName').value, email = $('#regEmail').value, phone = $('#regPhone').value, pass = $('#regPass').value;
   if (pass.length < 4) { showToast('Password too short', 'error'); return; }
   const result = DataStore.registerUser({ name, email, phone, password: pass });
   if (result.error) { showToast(result.error, 'error'); return; }
   currentUser = result.user;
-  localStorage.setItem('pf_current_user', JSON.stringify(currentUser));
+  localStorage.setItem('mf_current_user', JSON.stringify(currentUser));
   closeAuth();
   updateUserUI();
   showToast(`Welcome, ${name}! 🎉`, 'gold');
@@ -248,7 +371,7 @@ function handleRegister(e) {
 
 function logout() {
   currentUser = null;
-  localStorage.removeItem('pf_current_user');
+  localStorage.removeItem('mf_current_user');
   updateUserUI();
   showToast('Signed out', 'gold');
 }
@@ -256,33 +379,21 @@ function logout() {
 function updateUserUI() {
   const btn = $('#authBtn');
   if (!btn) return;
-  if (currentUser) {
-    btn.textContent = `👋 ${currentUser.name.split(' ')[0]}`;
-    btn.onclick = logout;
-  } else {
-    btn.textContent = 'Sign In';
-    btn.onclick = openAuth;
-  }
+  if (currentUser) { btn.textContent = `👋 ${currentUser.name.split(' ')[0]}`; btn.onclick = logout; }
+  else { btn.textContent = 'Sign In'; btn.onclick = openAuth; }
 }
 
-// ===== NEWSLETTER =====
-function subscribeNews() {
-  const email = $('#newsEmail')?.value;
-  if (!email) { showToast('Enter your email', 'error'); return; }
-  showToast('Subscribed! Welcome to SHINE ✨', 'gold');
-  $('#newsEmail').value = '';
-}
+window.addEventListener('scroll', () => $('#navbar').classList.toggle('scrolled', window.scrollY > 50));
 
-// ===== NAVBAR SCROLL =====
-window.addEventListener('scroll', () => {
-  $('#navbar').classList.toggle('scrolled', window.scrollY > 50);
-});
-
-// ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
   updateUserUI();
+  renderBanners();
   renderCategories();
   renderProducts();
   updateCartUI();
   renderCartDrawer();
+  if (localStorage.getItem('mf_view_wishlist') === 'true') {
+    localStorage.removeItem('mf_view_wishlist');
+    setTimeout(() => showWishlist(), 500);
+  }
 });

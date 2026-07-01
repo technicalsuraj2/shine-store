@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Profile — Mithila Fashions</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .profile-page { margin-top: 70px; max-width: 900px; margin-left: auto; margin-right: auto; padding: 30px; }
+    .profile-header { display: flex; align-items: center; gap: 20px; padding: 30px; background: var(--white); margin-bottom: 25px; }
+    .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--gold); display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: 800; color: var(--black); flex-shrink: 0; overflow: hidden; }
+    .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .profile-name h2 { font-size: 22px; font-weight: 700; }
+    .profile-name p { font-size: 13px; color: var(--mid-grey); }
+
+    .profile-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+    .profile-stat { text-align: center; padding: 20px; background: var(--white); }
+    .profile-stat-value { font-size: 28px; font-weight: 800; }
+    .profile-stat-label { font-size: 11px; color: var(--mid-grey); text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; }
+
+    .profile-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; margin-bottom: 25px; }
+    .profile-btn { padding: 20px 12px; background: var(--white); border: 1px solid var(--light-grey); text-align: center; cursor: pointer; transition: 0.3s; }
+    .profile-btn:hover { border-color: var(--black); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.06); }
+    .profile-btn-icon { font-size: 28px; margin-bottom: 6px; }
+    .profile-btn-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--dark-grey); }
+
+    .profile-orders { background: var(--white); padding: 25px; margin-bottom: 25px; }
+    .profile-orders h3 { font-size: 16px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--light-grey); }
+    .order-card { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--light-grey); }
+    .order-card:last-child { border-bottom: none; }
+    .order-card-id { font-weight: 700; font-size: 13px; }
+    .order-card-total { font-weight: 600; }
+    .order-card-status { font-size: 11px; padding: 3px 10px; font-weight: 600; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--mid-grey); }
+    .empty-state .empty-icon { font-size: 60px; margin-bottom: 15px; }
+
+    @media (max-width: 768px) { .profile-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); } .profile-stats { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="logo" onclick="window.location='index.html'">MITHILA<span>.</span></div>
+    <div class="nav-actions">
+      <button class="user-btn" onclick="window.location='index.html'">← Back to Shop</button>
+    </div>
+  </nav>
+
+  <div class="profile-page" id="profilePage">
+    <div id="notLoggedIn" class="empty-state" style="display:none">
+      <div class="empty-icon">🔒</div>
+      <h3>Please Sign In</h3>
+      <p style="margin-bottom:20px">Sign in to view your profile and orders.</p>
+      <button class="submit-btn" style="width:auto;padding:12px 40px;display:inline-block" onclick="window.location='index.html'">Go to Shop</button>
+    </div>
+
+    <div id="profileContent">
+      <div class="profile-header">
+        <div class="profile-avatar" id="profileAvatar">👤</div>
+        <div class="profile-name">
+          <h2 id="profileName">User</h2>
+          <p id="profileEmail">user@email.com</p>
+          <p id="profilePhone" style="font-size:12px;color:var(--mid-grey);margin-top:2px"></p>
+        </div>
+      </div>
+
+      <div class="profile-stats" id="profileStats"></div>
+
+      <div class="profile-grid">
+        <div class="profile-btn" onclick="window.location='index.html'"><div class="profile-btn-icon">🏠</div><div class="profile-btn-label">Home</div></div>
+        <div class="profile-btn" onclick="scrollToOrders()"><div class="profile-btn-icon">📦</div><div class="profile-btn-label">My Orders</div></div>
+        <div class="profile-btn" onclick="viewWishlist()"><div class="profile-btn-icon">❤️</div><div class="profile-btn-label">Wishlist</div></div>
+        <div class="profile-btn" onclick="viewCart()"><div class="profile-btn-icon">🛒</div><div class="profile-btn-label">Cart</div></div>
+        <div class="profile-btn" onclick="alert('All orders are COD currently')"><div class="profile-btn-icon">💳</div><div class="profile-btn-label">Payments</div></div>
+        <div class="profile-btn" onclick="alert('Shipping address: Saved')"><div class="profile-btn-icon">📍</div><div class="profile-btn-label">Addresses</div></div>
+        <div class="profile-btn" onclick="alert('Profile settings coming soon')"><div class="profile-btn-icon">⚙️</div><div class="profile-btn-label">Settings</div></div>
+        <div class="profile-btn" onclick="alert('No notifications')"><div class="profile-btn-icon">🔔</div><div class="profile-btn-label">Notifications</div></div>
+        <div class="profile-btn" onclick="alert('Coming soon!')"><div class="profile-btn-icon">⭐</div><div class="profile-btn-label">Reviews</div></div>
+        <div class="profile-btn" onclick="alert('Track your orders here')"><div class="profile-btn-icon">🚚</div><div class="profile-btn-label">Track Order</div></div>
+        <div class="profile-btn" onclick="alert('Coupons & offers page')"><div class="profile-btn-icon">🏷️</div><div class="profile-btn-label">Offers</div></div>
+        <div class="profile-btn" onclick="alert('Coming soon!')"><div class="profile-btn-icon">🎁</div><div class="profile-btn-label">Gift Cards</div></div>
+        <div class="profile-btn" onclick="alert('Refer a friend & earn!')"><div class="profile-btn-icon">👥</div><div class="profile-btn-label">Refer & Earn</div></div>
+        <div class="profile-btn" onclick="alert('Download our app - coming soon')"><div class="profile-btn-icon">📱</div><div class="profile-btn-label">Download App</div></div>
+        <div class="profile-btn" onclick="alert('Help center')"><div class="profile-btn-icon">❓</div><div class="profile-btn-label">Help</div></div>
+        <div class="profile-btn" onclick="alert('Chat with us - coming soon')"><div class="profile-btn-icon">💬</div><div class="profile-btn-label">Live Chat</div></div>
+        <div class="profile-btn" onclick="alert('FAQs')"><div class="profile-btn-icon">📖</div><div class="profile-btn-label">FAQs</div></div>
+        <div class="profile-btn" onclick="alert('Return policy: 7 days')"><div class="profile-btn-icon">↩️</div><div class="profile-btn-label">Returns</div></div>
+        <div class="profile-btn" onclick="logoutProfile()"><div class="profile-btn-icon">🚪</div><div class="profile-btn-label">Logout</div></div>
+        <div class="profile-btn" onclick="DataStore.clearAllData();alert('Data reset to defaults');location.reload()"><div class="profile-btn-icon">🔄</div><div class="profile-btn-label">Reset Data</div></div>
+      </div>
+
+      <div class="profile-orders" id="ordersSection">
+        <h3>📦 My Orders</h3>
+        <div id="myOrdersList"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script>
+    let currentUser = null;
+    try {
+      const raw = localStorage.getItem('mf_current_user');
+      currentUser = raw ? JSON.parse(raw) : null;
+    } catch(e) {}
+
+    if (!currentUser) {
+      document.getElementById('notLoggedIn').style.display = 'block';
+      document.getElementById('profileContent').style.display = 'none';
+    }
+    if (currentUser) {
+      const avatar = document.getElementById('profileAvatar');
+      if (currentUser.avatar) avatar.innerHTML = `<img src="${currentUser.avatar}" alt="avatar">`;
+      else avatar.textContent = currentUser.name.charAt(0).toUpperCase();
+      document.getElementById('profileName').textContent = currentUser.name;
+      document.getElementById('profileEmail').textContent = currentUser.email;
+      document.getElementById('profilePhone').textContent = currentUser.phone || '';
+
+      const orders = DataStore.getOrders().filter(o => o.email === currentUser.email);
+      const wishlist = DataStore.getWishlist();
+      const cart = DataStore.getCart();
+      const totalSpent = orders.reduce((s, o) => s + (o.total || 0), 0);
+
+      document.getElementById('profileStats').innerHTML = `
+        <div class="profile-stat"><div class="profile-stat-value">${orders.length}</div><div class="profile-stat-label">Orders</div></div>
+        <div class="profile-stat"><div class="profile-stat-value">${wishlist.length}</div><div class="profile-stat-label">Wishlist</div></div>
+        <div class="profile-stat"><div class="profile-stat-value">₹${totalSpent.toLocaleString('en-IN')}</div><div class="profile-stat-label">Total Spent</div></div>
+      `;
+
+      const ordersContainer = document.getElementById('myOrdersList');
+      if (orders.length === 0) {
+        ordersContainer.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><p>No orders yet</p><button class="submit-btn" style="width:auto;padding:10px 30px;display:inline-block;margin-top:15px" onclick="window.location=\'index.html\'">Start Shopping</button></div>';
+      } else {
+        ordersContainer.innerHTML = orders.map(o => `
+          <div class="order-card">
+            <div>
+              <div class="order-card-id">${o.id}</div>
+              <div style="font-size:12px;color:var(--mid-grey)">${o.items.map(i => i.name + ' × ' + i.qty).join(', ')}</div>
+              <div style="font-size:12px;color:var(--mid-grey)">${o.date}</div>
+            </div>
+            <div style="text-align:right">
+              <div class="order-card-total">₹${(o.total || 0).toLocaleString('en-IN')}</div>
+              <span class="status ${o.status.toLowerCase()}">${o.status}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function scrollToOrders() {
+      document.getElementById('ordersSection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function viewWishlist() {
+      window.location.href = 'index.html';
+      localStorage.setItem('mf_view_wishlist', 'true');
+    }
+
+    function viewCart() {
+      window.location.href = 'index.html';
+    }
+
+    function logoutProfile() {
+      localStorage.removeItem('mf_current_user');
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>

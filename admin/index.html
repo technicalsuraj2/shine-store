@@ -3,59 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SHINE Admin</title>
+  <title>Mithila Fashions — Admin Panel</title>
   <link rel="stylesheet" href="../css/admin.css">
 </head>
 <body>
-
-  <!-- ===== LOGIN SCREEN ===== -->
   <div class="login-page" id="loginScreen">
     <div class="login-card">
-      <div class="logo">SHINE<span>.</span></div>
+      <div class="logo">MITHILA<span>.</span></div>
       <h2>Admin <strong>Panel</strong></h2>
       <div class="login-error" id="loginError">Invalid credentials</div>
       <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
-        <div class="form-group">
-          <label>Username</label>
-          <input type="text" id="adminUser" placeholder="admin" value="admin">
-        </div>
-        <div class="form-group">
-          <label>Password</label>
-          <input type="password" id="adminPass" placeholder="••••••" value="admin123">
-        </div>
+        <div class="form-group"><label>Username</label><input type="text" id="adminUser" placeholder="admin" value="admin"></div>
+        <div class="form-group"><label>Password</label><input type="password" id="adminPass" placeholder="••••••" value="admin123"></div>
         <button type="submit" class="submit-btn">Login to Dashboard</button>
       </form>
     </div>
   </div>
 
-  <!-- ===== MAIN APP ===== -->
   <div id="appMain" style="display:none">
-
-    <!-- Sidebar -->
     <aside class="sidebar">
-      <div class="sidebar-logo">SHINE<span>.</span></div>
+      <div class="sidebar-logo">MITHILA<span>.</span></div>
       <div class="sidebar-user">
         <div class="sidebar-user-avatar">A</div>
-        <div class="sidebar-user-info">
-          <h4 id="adminName">Admin</h4>
-          <p>Super Admin</p>
-        </div>
+        <div class="sidebar-user-info"><h4 id="adminName">Admin</h4><p>Super Admin</p></div>
       </div>
       <nav class="sidebar-nav">
         <div class="sidebar-section">Main</div>
         <button class="sidebar-item active" onclick="showPage('dashboard')"><span class="icon">📊</span> Dashboard</button>
         <button class="sidebar-item" onclick="showPage('orders')"><span class="icon">📦</span> Orders <span class="badge" id="orderBadge">0</span></button>
         <button class="sidebar-item" onclick="showPage('products')"><span class="icon">👗</span> Products</button>
+        <button class="sidebar-item" onclick="showPage('addproduct')"><span class="icon">➕</span> Add Product</button>
         <button class="sidebar-item" onclick="showPage('categories')"><span class="icon">📁</span> Categories</button>
         <button class="sidebar-item" onclick="showPage('users')"><span class="icon">👥</span> Users</button>
         <button class="sidebar-item" onclick="showPage('coupons')"><span class="icon">🏷️</span> Coupons</button>
+        <button class="sidebar-item" onclick="showPage('banners')"><span class="icon">🎪</span> Banners</button>
+        <button class="sidebar-item" onclick="showPage('reviews')"><span class="icon">⭐</span> Reviews</button>
         <div class="sidebar-section" style="margin-top:15px">System</div>
         <button class="sidebar-item" onclick="showPage('settings')"><span class="icon">⚙️</span> Settings</button>
+        <button class="sidebar-item" onclick="showPage('backup')"><span class="icon">💾</span> Backup</button>
+        <button class="sidebar-item" onclick="showPage('analytics')"><span class="icon">📈</span> Analytics</button>
+        <button class="sidebar-item" onclick="showPage('seo')"><span class="icon">🔍</span> SEO</button>
+        <div class="sidebar-section" style="margin-top:15px">Content</div>
+        <button class="sidebar-item" onclick="showPage('pages')"><span class="icon">📄</span> Pages</button>
+        <button class="sidebar-item" onclick="showPage('brands')"><span class="icon">🏢</span> Brands</button>
+        <button class="sidebar-item" onclick="showPage('offers')"><span class="icon">🎯</span> Offers</button>
+        <button class="sidebar-item" onclick="showPage('newsletter')"><span class="icon">📧</span> Newsletter</button>
+        <button class="sidebar-item" onclick="showPage('support')"><span class="icon">🎧</span> Support</button>
+        <button class="sidebar-item" onclick="showPage('shipping')"><span class="icon">🚚</span> Shipping</button>
+        <div class="sidebar-section" style="margin-top:15px">Account</div>
         <button class="sidebar-item" onclick="handleLogout()"><span class="icon">🚪</span> Logout</button>
       </nav>
     </aside>
 
-    <!-- Main Content -->
     <div class="main-content">
       <div class="topbar">
         <h2 id="pageTitle">Dashboard</h2>
@@ -65,186 +64,184 @@
         </div>
       </div>
 
-      <!-- Dashboard -->
       <div class="page-content active" id="page-dashboard">
         <div class="stats-grid" id="statsGrid"></div>
-        <div class="card">
-          <div class="card-header"><h3>📋 Recent Orders</h3></div>
-          <div class="card-body">
-            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="recentOrdersTable"></tbody></table></div>
-          </div>
-        </div>
+        <div class="card"><div class="card-header"><h3>📋 Recent Orders</h3></div><div class="card-body"><div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="recentOrdersTable"></tbody></table></div></div></div>
       </div>
 
-      <!-- Orders -->
       <div class="page-content" id="page-orders">
-        <div class="card">
-          <div class="card-header"><h3>📦 All Orders</h3></div>
-          <div class="card-body">
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
-                <tbody id="ordersTable"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+        <div class="card"><div class="card-header"><h3>📦 All Orders</h3></div><div class="card-body">
+          <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ordersTable"></tbody></table></div>
+        </div></div>
       </div>
 
-      <!-- Products -->
       <div class="page-content" id="page-products">
-        <div class="card">
-          <div class="card-header"><h3>👗 Products</h3><button class="btn btn-gold btn-sm" onclick="openProductModal()">+ Add Product</button></div>
-          <div class="card-body">
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>ID</th><th>Name</th><th>Brand</th><th>Category</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead>
-                <tbody id="productsTable"></tbody>
-              </table>
-            </div>
+        <div class="card"><div class="card-header"><h3>👗 Products</h3><button class="btn btn-gold btn-sm" onclick="showPage('addproduct')">+ Add Product</button></div><div class="card-body">
+          <div style="margin-bottom:15px;display:flex;gap:10px;flex-wrap:wrap">
+            <input type="text" id="adminSearchInput" placeholder="Search products..." style="padding:10px 14px;border:1px solid var(--light-grey);flex:1;font-size:13px" oninput="adminSearchProducts(this.value)">
+            <select id="adminCategoryFilter" style="padding:10px;border:1px solid var(--light-grey);font-size:13px" onchange="adminSearchProducts()"></select>
           </div>
-        </div>
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Image</th><th>Name</th><th>Brand</th><th>Category</th><th>Price</th><th>Stock</th><th>Actions</th></tr></thead><tbody id="productsTable"></tbody></table></div>
+        </div></div>
       </div>
 
-      <!-- Categories -->
+      <div class="page-content" id="page-addproduct">
+        <div class="card"><div class="card-header"><h3 id="addProductTitle">➕ Add New Product</h3></div><div class="card-body">
+          <form id="adminProductForm" onsubmit="saveProduct(event)" style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
+            <input type="hidden" id="prodId">
+            <div class="form-group" style="grid-column:1/-1"><label>Product Name</label><input type="text" id="prodName" required></div>
+            <div class="form-group"><label>Brand</label><input type="text" id="prodBrand" required></div>
+            <div class="form-group"><label>Category</label><select id="prodCategory" required></select></div>
+            <div class="form-group"><label>Price (₹)</label><input type="number" id="prodPrice" required></div>
+            <div class="form-group"><label>Original Price (₹)</label><input type="number" id="prodOriginal"></div>
+            <div class="form-group"><label>Badge</label><input type="text" id="prodBadge" placeholder="e.g. Sale, New, Premium"></div>
+            <div class="form-group"><label>Emoji</label><input type="text" id="prodEmoji" placeholder="👗"></div>
+            <div class="form-group"><label>Stock</label><select id="prodStock"><option value="true">In Stock</option><option value="false">Out of Stock</option></select></div>
+            <div class="form-group" style="grid-column:1/-1"><label>Description</label><textarea id="prodDesc" rows="3" placeholder="Product description..."></textarea></div>
+            <div class="form-group"><label>Sizes (comma separated)</label><input type="text" id="prodSizes" placeholder="S, M, L, XL"></div>
+            <div class="form-group"><label>Colors (comma separated)</label><input type="text" id="prodColors" placeholder="Red, Blue, Black"></div>
+            <div class="form-group" style="grid-column:1/-1">
+              <label>Product Images (Max 5, Min 1)</label>
+              <div style="display:flex;gap:10px;flex-wrap:wrap" id="imagePreviewContainer"></div>
+              <input type="file" id="prodImageInput" accept="image/*" multiple onchange="handleImageUpload(event)">
+              <small style="color:var(--mid-grey);display:block;margin-top:5px">Click to upload images. First image will be the main product image.</small>
+            </div>
+            <div style="grid-column:1/-1;display:flex;gap:15px;margin-top:10px">
+              <button type="submit" class="btn btn-black" id="saveProductBtn">Save Product</button>
+              <button type="button" class="btn btn-outline" onclick="showPage('products')">Cancel</button>
+            </div>
+          </form>
+        </div></div>
+      </div>
+
       <div class="page-content" id="page-categories">
-        <div class="card">
-          <div class="card-header"><h3>📁 Categories</h3></div>
-          <div class="card-body">
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>ID</th><th>Icon</th><th>Name</th></tr></thead>
-                <tbody id="categoriesTable"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+        <div class="card"><div class="card-header"><h3>📁 Categories</h3><button class="btn btn-gold btn-sm" onclick="addCategory()">+ Add Category</button></div><div class="card-body">
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Icon</th><th>Name</th><th>Actions</th></tr></thead><tbody id="categoriesTable"></tbody></table></div>
+        </div></div>
       </div>
 
-      <!-- Users -->
       <div class="page-content" id="page-users">
-        <div class="card">
-          <div class="card-header"><h3>👥 Registered Users</h3></div>
-          <div class="card-body">
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Registered</th></tr></thead>
-                <tbody id="usersTable"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+        <div class="card"><div class="card-header"><h3>👥 Registered Users</h3></div><div class="card-body">
+          <div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Registered</th><th>Orders</th></tr></thead><tbody id="usersTable"></tbody></table></div>
+        </div></div>
       </div>
 
-      <!-- Coupons -->
       <div class="page-content" id="page-coupons">
-        <div class="card">
-          <div class="card-header"><h3>🏷️ Coupons</h3><button class="btn btn-gold btn-sm" onclick="addCoupon()">+ Add Coupon</button></div>
-          <div class="card-body">
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th>Code</th><th>Discount</th><th>Type</th><th>Min Order</th><th>Uses</th><th>Status</th><th>Actions</th></tr></thead>
-                <tbody id="couponsTable"></tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+        <div class="card"><div class="card-header"><h3>🏷️ Coupons</h3><button class="btn btn-gold btn-sm" onclick="addCoupon()">+ Add Coupon</button></div><div class="card-body">
+          <div class="table-wrap"><table><thead><tr><th>Code</th><th>Discount</th><th>Type</th><th>Min Order</th><th>Max Discount</th><th>Uses</th><th>Status</th><th>Actions</th></tr></thead><tbody id="couponsTable"></tbody></table></div>
+        </div></div>
       </div>
 
-      <!-- Settings -->
+      <div class="page-content" id="page-banners">
+        <div class="card"><div class="card-header"><h3>🎪 Banner Slides</h3><button class="btn btn-gold btn-sm" onclick="addBanner()">+ Add Banner</button></div><div class="card-body">
+          <div class="table-wrap"><table><thead><tr><th>Title</th><th>Subtitle</th><th>BG Color</th><th>Status</th><th>Actions</th></tr></thead><tbody id="bannersTable"></tbody></table></div>
+        </div></div>
+      </div>
+
+      <div class="page-content" id="page-reviews">
+        <div class="card"><div class="card-header"><h3>⭐ Product Reviews</h3></div><div class="card-body">
+          <div class="table-wrap"><table><thead><tr><th>Product</th><th>User</th><th>Rating</th><th>Comment</th><th>Date</th><th>Actions</th></tr></thead><tbody id="reviewsTable"></tbody></table></div>
+        </div></div>
+      </div>
+
       <div class="page-content" id="page-settings">
-        <div class="card">
-          <div class="card-header"><h3>⚙️ System Settings</h3></div>
-          <div class="card-body">
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Store Name</label>
-                <input type="text" id="setStoreName" value="SHINE">
-              </div>
-              <div class="form-group">
-                <label>Currency</label>
-                <input type="text" value="INR (₹)" disabled>
-              </div>
-              <div class="form-group">
-                <label>Admin Email</label>
-                <input type="email" id="setEmail" value="admin@shine.store">
-              </div>
-              <div class="form-group">
-                <label>Orders per page</label>
-                <input type="number" id="setPerPage" value="20">
-              </div>
-              <div class="form-group" style="grid-column:1/-1">
-                <label>Change Admin Password</label>
-                <input type="password" id="setNewPass" placeholder="New password">
-              </div>
-              <div class="form-group" style="grid-column:1/-1">
-                <button class="btn btn-black" onclick="saveSettings()">Save Settings</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-header"><h3>💾 Backup & Restore</h3></div>
-          <div class="card-body">
-            <p style="font-size:13px;color:var(--mid-grey);margin-bottom:20px">Export all store data (products, orders, users) as a JSON file, or import a previous backup.</p>
-            <div style="display:flex;gap:15px;flex-wrap:wrap">
-              <button class="btn btn-black" onclick="exportBackup()">⬇️ Export Backup</button>
-              <button class="btn btn-outline" onclick="document.getElementById('importFileInput').click()">⬆️ Import Backup</button>
-              <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importBackup(event)">
-              <button class="btn btn-red" onclick="resetAllData()" style="margin-left:auto">⚠️ Reset All Data</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== PRODUCT MODAL ===== -->
-  <div class="modal-overlay" id="productModal">
-    <div class="modal">
-      <div class="modal-header">
-        <h3 id="productModalTitle">Add Product</h3>
-        <button class="modal-close" onclick="closeProductModal()">✕</button>
-      </div>
-      <div class="modal-body">
-        <form id="productForm" onsubmit="saveProduct(event)">
-          <input type="hidden" id="prodId">
+        <div class="card"><div class="card-header"><h3>⚙️ System Settings</h3></div><div class="card-body">
           <div class="form-grid">
-            <div class="form-group">
-              <label>Product Name</label>
-              <input type="text" id="prodName" required>
-            </div>
-            <div class="form-group">
-              <label>Brand</label>
-              <input type="text" id="prodBrand" required>
-            </div>
-            <div class="form-group">
-              <label>Category</label>
-              <select id="prodCategory"></select>
-            </div>
-            <div class="form-group">
-              <label>Price (₹)</label>
-              <input type="number" id="prodPrice" required>
-            </div>
-            <div class="form-group">
-              <label>Original Price (₹)</label>
-              <input type="number" id="prodOriginal">
-            </div>
-            <div class="form-group">
-              <label>Badge</label>
-              <input type="text" id="prodBadge" placeholder="e.g. Sale, New">
-            </div>
-            <div class="form-group">
-              <label>Emoji</label>
-              <input type="text" id="prodEmoji" placeholder="👗">
-            </div>
-            <div class="form-group">
-              <label>Stock</label>
-              <select id="prodStock"><option value="true">In Stock</option><option value="false">Out of Stock</option></select>
-            </div>
+            <div class="form-group"><label>Store Name</label><input type="text" id="setStoreName" value="Mithila Fashions"></div>
+            <div class="form-group"><label>Currency</label><input type="text" value="INR (₹)" disabled></div>
+            <div class="form-group"><label>Admin Email</label><input type="email" id="setEmail" value="admin@mithila.store"></div>
+            <div class="form-group"><label>Orders per page</label><input type="number" id="setPerPage" value="20"></div>
+            <div class="form-group"><label>Free Shipping Above (₹)</label><input type="number" id="setFreeShipping" value="5000"></div>
+            <div class="form-group"><label>Shipping Charge (₹)</label><input type="number" id="setShippingCharge" value="499"></div>
+            <div class="form-group" style="grid-column:1/-1"><label>Change Admin Password</label><input type="password" id="setNewPass" placeholder="New password"></div>
+            <div class="form-group" style="grid-column:1/-1"><button class="btn btn-black" onclick="saveSettings()">Save Settings</button></div>
           </div>
-          <button type="submit" class="btn btn-black" style="float:right">Save Product</button>
-        </form>
+        </div></div>
+        <div class="card"><div class="card-header"><h3>🛒 Store Status</h3></div><div class="card-body">
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <button class="btn btn-black" onclick="toggleStoreStatus()" id="storeStatusBtn">🔴 Close Store</button>
+            <button class="btn btn-outline" onclick="alert('Maintenance mode toggled')">🔧 Maintenance Mode</button>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="page-content" id="page-backup">
+        <div class="card"><div class="card-header"><h3>💾 Backup & Restore</h3></div><div class="card-body">
+          <p style="font-size:13px;color:var(--mid-grey);margin-bottom:20px">Export all store data (products, orders, users, coupons, banners) as JSON, or import a previous backup.</p>
+          <div style="display:flex;gap:15px;flex-wrap:wrap">
+            <button class="btn btn-black" onclick="exportBackup()">⬇️ Export Backup</button>
+            <button class="btn btn-outline" onclick="document.getElementById('importFileInput').click()">⬆️ Import Backup</button>
+            <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importBackup(event)">
+            <button class="btn btn-red" onclick="resetAllData()">⚠️ Reset All Data</button>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="page-content" id="page-analytics">
+        <div class="card"><div class="card-header"><h3>📈 Analytics</h3></div><div class="card-body">
+          <div class="stats-grid" id="analyticsGrid"></div>
+        </div></div>
+      </div>
+
+      <div class="page-content" id="page-seo">
+        <div class="card"><div class="card-header"><h3>🔍 SEO Settings</h3></div><div class="card-body">
+          <div class="form-grid">
+            <div class="form-group" style="grid-column:1/-1"><label>Meta Title</label><input type="text" id="seoTitle" value="Mithila Fashions - Premium Fashion Store"></div>
+            <div class="form-group" style="grid-column:1/-1"><label>Meta Description</label><textarea id="seoDesc" rows="3">Premium fashion store for men, women, and kids. Shop the latest collection of ethnic wear, western wear, accessories and more.</textarea></div>
+            <div class="form-group"><label>Google Analytics ID</label><input type="text" id="gaId" placeholder="G-XXXXXXXXXX"></div>
+            <div class="form-group" style="grid-column:1/-1"><button class="btn btn-black" onclick="saveSeo()">Save SEO Settings</button></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="page-content" id="page-pages">
+        <div class="card"><div class="card-header"><h3>📄 Static Pages</h3></div><div class="card-body">
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:15px">
+            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit About Us page')">📄 About Us</button>
+            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Contact page')">📄 Contact</button>
+            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Privacy Policy')">📄 Privacy Policy</button>
+            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Terms of Service')">📄 Terms</button>
+            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Shipping Policy')">📄 Shipping Policy</button>
+            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Return Policy')">📄 Return Policy</button>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="page-content" id="page-brands">
+        <div class="card"><div class="card-header"><h3>🏢 Brand Management</h3><button class="btn btn-gold btn-sm" onclick="addBrand()">+ Add Brand</button></div><div class="card-body">
+          <div class="table-wrap"><table><thead><tr><th>Brand Name</th><th>Products</th><th>Actions</th></tr></thead><tbody id="brandsTable"></tbody></table></div>
+        </div></div>
+      </div>
+
+      <div class="page-content" id="page-offers">
+        <div class="card"><div class="card-header"><h3>🎯 Special Offers</h3><button class="btn btn-gold btn-sm" onclick="addOffer()">+ Add Offer</button></div><div class="card-body">
+          <div class="table-wrap"><table><thead><tr><th>Title</th><th>Discount</th><th>Valid Till</th><th>Status</th><th>Actions</th></tr></thead><tbody id="offersTable"></tbody></table></div>
+        </div></div>
+      </div>
+
+      <div class="page-content" id="page-newsletter">
+        <div class="card"><div class="card-header"><h3>📧 Newsletter Subscribers</h3></div><div class="card-body">
+          <p style="color:var(--mid-grey);margin-bottom:15px">Subscribers are stored locally. Export to manage them.</p>
+          <div id="subscribersList"><p style="color:var(--mid-grey)">No subscribers yet.</p></div>
+        </div></div>
+      </div>
+
+      <div class="page-content" id="page-support">
+        <div class="card"><div class="card-header"><h3>🎧 Support Tickets</h3></div><div class="card-body">
+          <p style="color:var(--mid-grey)">Support system - coming soon. Currently all inquiries are handled via email.</p>
+        </div></div>
+      </div>
+
+      <div class="page-content" id="page-shipping">
+        <div class="card"><div class="card-header"><h3>🚚 Shipping Settings</h3></div><div class="card-body">
+          <div class="form-grid">
+            <div class="form-group"><label>Free Shipping Above</label><input type="number" id="shipFree" value="5000"></div>
+            <div class="form-group"><label>Standard Shipping Charge</label><input type="number" id="shipCharge" value="499"></div>
+            <div class="form-group"><label>Estimated Delivery Days</label><input type="number" id="shipDays" value="5"></div>
+            <div class="form-group"><label>COD Available</label><select id="shipCod"><option value="true" selected>Yes</option><option value="false">No</option></select></div>
+            <div class="form-group" style="grid-column:1/-1"><button class="btn btn-black" onclick="saveShipping()">Save Shipping Settings</button></div>
+          </div>
+        </div></div>
       </div>
     </div>
   </div>

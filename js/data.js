@@ -1,26 +1,22 @@
-// ============================================
-// SHARED DATA LAYER - Products, Orders, Users
-// ============================================
-
 const DataStore = {
   init() {
-    if (!localStorage.getItem('pf_products')) this.seedProducts();
-    if (!localStorage.getItem('pf_orders')) this.seedOrders();
-    if (!localStorage.getItem('pf_users')) this.seedUsers();
-    if (!localStorage.getItem('pf_categories')) this.seedCategories();
-    if (!localStorage.getItem('pf_coupons')) this.seedCoupons();
-    if (!localStorage.getItem('pf_reviews')) localStorage.setItem('pf_reviews', '[]');
-    if (!localStorage.getItem('pf_cart')) localStorage.setItem('pf_cart', '[]');
-    if (!localStorage.getItem('pf_wishlist')) localStorage.setItem('pf_wishlist', '[]');
+    if (!localStorage.getItem('mf_products')) this.seedProducts();
+    if (!localStorage.getItem('mf_orders')) this.seedOrders();
+    if (!localStorage.getItem('mf_users')) this.seedUsers();
+    if (!localStorage.getItem('mf_categories')) this.seedCategories();
+    if (!localStorage.getItem('mf_coupons')) this.seedCoupons();
+    if (!localStorage.getItem('mf_reviews')) localStorage.setItem('mf_reviews', '[]');
+    if (!localStorage.getItem('mf_cart')) localStorage.setItem('mf_cart', '[]');
+    if (!localStorage.getItem('mf_wishlist')) localStorage.setItem('mf_wishlist', '[]');
+    if (!localStorage.getItem('mf_banners')) this.seedBanners();
   },
 
-  // ----- PRODUCTS -----
-  getProducts() { return JSON.parse(localStorage.getItem('pf_products')); },
-  saveProducts(p) { localStorage.setItem('pf_products', JSON.stringify(p)); },
-  getProduct(id) { const prods = this.getProducts(); return prods ? prods.find(p => p.id === id) : null; },
+  getProducts() { return JSON.parse(localStorage.getItem('mf_products')) || []; },
+  saveProducts(p) { localStorage.setItem('mf_products', JSON.stringify(p)); },
+  getProduct(id) { const prods = this.getProducts(); return prods.find(p => p.id === id); },
 
   addProduct(p) {
-    const prods = this.getProducts() || [];
+    const prods = this.getProducts();
     p.id = Date.now();
     prods.push(p);
     this.saveProducts(prods);
@@ -28,26 +24,24 @@ const DataStore = {
   },
 
   updateProduct(id, data) {
-    const prods = this.getProducts() || [];
+    const prods = this.getProducts();
     const idx = prods.findIndex(p => p.id === id);
     if (idx > -1) { Object.assign(prods[idx], data); this.saveProducts(prods); return prods[idx]; }
     return null;
   },
 
   deleteProduct(id) {
-    let prods = this.getProducts() || [];
+    let prods = this.getProducts();
     prods = prods.filter(p => p.id !== id);
     this.saveProducts(prods);
   },
 
-  // ----- CATEGORIES -----
-  getCategories() { return JSON.parse(localStorage.getItem('pf_categories')) || []; },
-  saveCategories(c) { localStorage.setItem('pf_categories', JSON.stringify(c)); },
+  getCategories() { return JSON.parse(localStorage.getItem('mf_categories')) || []; },
+  saveCategories(c) { localStorage.setItem('mf_categories', JSON.stringify(c)); },
 
-  // ----- ORDERS -----
-  getOrders() { return JSON.parse(localStorage.getItem('pf_orders')) || []; },
-  saveOrders(o) { localStorage.setItem('pf_orders', JSON.stringify(o)); },
-  getOrder(id) { const orders = this.getOrders(); return orders.find(o => o.id === id); },
+  getOrders() { return JSON.parse(localStorage.getItem('mf_orders')) || []; },
+  saveOrders(o) { localStorage.setItem('mf_orders', JSON.stringify(o)); },
+  getOrder(id) { return this.getOrders().find(o => o.id === id); },
 
   addOrder(order) {
     const orders = this.getOrders();
@@ -66,40 +60,76 @@ const DataStore = {
     return o;
   },
 
-  // ----- USERS -----
-  getUsers() { return JSON.parse(localStorage.getItem('pf_users')) || []; },
-  saveUsers(u) { localStorage.setItem('pf_users', JSON.stringify(u)); },
+  getUsers() { return JSON.parse(localStorage.getItem('mf_users')) || []; },
+  saveUsers(u) { localStorage.setItem('mf_users', JSON.stringify(u)); },
 
   registerUser(u) {
     const users = this.getUsers();
     if (users.find(x => x.email === u.email)) return { error: 'Email already registered' };
     if (users.find(x => x.phone === u.phone)) return { error: 'Phone already registered' };
     u.id = 'USR-' + Date.now().toString(36).toUpperCase();
-    u.password = u.password;
     u.createdAt = new Date().toISOString();
+    u.address = u.address || '';
+    u.city = u.city || '';
+    u.pincode = u.pincode || '';
+    u.avatar = u.avatar || '';
     users.push(u);
     this.saveUsers(users);
-    return { success: true, user: { id: u.id, name: u.name, email: u.email, phone: u.phone } };
+    return { success: true, user: { id: u.id, name: u.name, email: u.email, phone: u.phone, address: u.address, city: u.city, pincode: u.pincode, avatar: u.avatar } };
   },
 
   loginUser(email, password) {
     const users = this.getUsers();
     const u = users.find(x => x.email === email && x.password === password);
     if (!u) return { error: 'Invalid email or password' };
-    return { success: true, user: { id: u.id, name: u.name, email: u.email, phone: u.phone } };
+    return { success: true, user: { id: u.id, name: u.name, email: u.email, phone: u.phone, address: u.address, city: u.city, pincode: u.pincode, avatar: u.avatar } };
   },
 
-  // ----- COUPONS -----
-  getCoupons() { return JSON.parse(localStorage.getItem('pf_coupons')) || []; },
-  saveCoupons(c) { localStorage.setItem('pf_coupons', JSON.stringify(c)); },
+  updateUser(id, data) {
+    const users = this.getUsers();
+    const idx = users.findIndex(u => u.id === id);
+    if (idx > -1) { Object.assign(users[idx], data); this.saveUsers(users); return users[idx]; }
+    return null;
+  },
 
-  // ----- CART -----
-  getCart() { return JSON.parse(localStorage.getItem('pf_cart')) || []; },
-  saveCart(c) { localStorage.setItem('pf_cart', JSON.stringify(c)); },
-  getWishlist() { return JSON.parse(localStorage.getItem('pf_wishlist')) || []; },
-  saveWishlist(w) { localStorage.setItem('pf_wishlist', JSON.stringify(w)); },
+  getCoupons() { return JSON.parse(localStorage.getItem('mf_coupons')) || []; },
+  saveCoupons(c) { localStorage.setItem('mf_coupons', JSON.stringify(c)); },
 
-  // ----- BACKUP / RESTORE -----
+  getCart() { return JSON.parse(localStorage.getItem('mf_cart')) || []; },
+  saveCart(c) { localStorage.setItem('mf_cart', JSON.stringify(c)); },
+  getWishlist() { return JSON.parse(localStorage.getItem('mf_wishlist')) || []; },
+  saveWishlist(w) { localStorage.setItem('mf_wishlist', JSON.stringify(w)); },
+
+  getBanners() { return JSON.parse(localStorage.getItem('mf_banners')) || []; },
+  saveBanners(b) { localStorage.setItem('mf_banners', JSON.stringify(b)); },
+
+  getReviews(productId) {
+    const all = JSON.parse(localStorage.getItem('mf_reviews')) || [];
+    return all.filter(r => r.productId === productId);
+  },
+  addReview(r) {
+    const all = JSON.parse(localStorage.getItem('mf_reviews')) || [];
+    r.id = Date.now();
+    r.date = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    all.push(r);
+    localStorage.setItem('mf_reviews', JSON.stringify(all));
+    return r;
+  },
+
+  applyCoupon(code, cartTotal) {
+    const coupons = this.getCoupons();
+    const c = coupons.find(x => x.code === code.toUpperCase() && x.active);
+    if (!c) return { error: 'Invalid coupon code' };
+    if (c.uses >= c.maxUses) return { error: 'Coupon usage limit reached' };
+    if (cartTotal < c.minOrder) return { error: `Minimum order ₹${c.minOrder} required` };
+    let discount = c.type === 'percent' ? (cartTotal * c.discount / 100) : c.discount;
+    if (c.maxDiscount && discount > c.maxDiscount) discount = c.maxDiscount;
+    if (discount > cartTotal) discount = cartTotal;
+    c.uses += 1;
+    this.saveCoupons(coupons);
+    return { success: true, discount, code: c.code };
+  },
+
   exportData() {
     return {
       products: this.getProducts(),
@@ -107,8 +137,9 @@ const DataStore = {
       users: this.getUsers(),
       categories: this.getCategories(),
       coupons: this.getCoupons(),
-      reviews: JSON.parse(localStorage.getItem('pf_reviews') || '[]'),
-      wishlist: JSON.parse(localStorage.getItem('pf_wishlist') || '[]'),
+      reviews: JSON.parse(localStorage.getItem('mf_reviews') || '[]'),
+      wishlist: JSON.parse(localStorage.getItem('mf_wishlist') || '[]'),
+      banners: this.getBanners(),
       exportedAt: new Date().toISOString()
     };
   },
@@ -121,8 +152,9 @@ const DataStore = {
       this.saveUsers(data.users || []);
       this.saveCategories(data.categories || []);
       this.saveCoupons(data.coupons || []);
-      localStorage.setItem('pf_reviews', JSON.stringify(data.reviews || []));
-      localStorage.setItem('pf_wishlist', JSON.stringify(data.wishlist || []));
+      localStorage.setItem('mf_reviews', JSON.stringify(data.reviews || []));
+      localStorage.setItem('mf_wishlist', JSON.stringify(data.wishlist || []));
+      localStorage.setItem('mf_banners', JSON.stringify(data.banners || []));
       return { success: true };
     } catch(e) {
       return { error: e.message };
@@ -130,18 +162,10 @@ const DataStore = {
   },
 
   clearAllData() {
-    localStorage.removeItem('pf_products');
-    localStorage.removeItem('pf_orders');
-    localStorage.removeItem('pf_users');
-    localStorage.removeItem('pf_categories');
-    localStorage.removeItem('pf_coupons');
-    localStorage.removeItem('pf_reviews');
-    localStorage.removeItem('pf_wishlist');
-    localStorage.removeItem('pf_cart');
+    ['mf_products','mf_orders','mf_users','mf_categories','mf_coupons','mf_reviews','mf_wishlist','mf_cart','mf_banners'].forEach(k => localStorage.removeItem(k));
     this.init();
   },
 
-  // ----- STATS -----
   getStats() {
     const orders = this.getOrders();
     const users = this.getUsers();
@@ -157,57 +181,82 @@ const DataStore = {
     };
   },
 
-  // ----- SEED DATA -----
+  seedBanners() {
+    const banners = [
+      { id: 1, image: '', title: 'Summer Sale', subtitle: 'Up to 50% Off', link: '#', bg: '#FF6B6B', active: true },
+      { id: 2, image: '', title: 'New Collection', subtitle: 'Fresh Styles Arrived', link: '#', bg: '#4ECDC4', active: true },
+      { id: 3, image: '', title: 'Festival Offer', subtitle: 'Use Code: FESTIVE20', link: '#', bg: '#FFE66D', active: true },
+    ];
+    this.saveBanners(banners);
+  },
+
   seedCategories() {
     const cats = [
-      { id: 1, name: 'All', icon: '👗' },
-      { id: 2, name: 'Western Wear', icon: '👚' },
-      { id: 3, name: 'Ethnic Wear', icon: '🥻' },
-      { id: 4, name: 'Footwear', icon: '👠' },
-      { id: 5, name: 'Accessories', icon: '👜' },
-      { id: 6, name: 'Beauty', icon: '💄' },
-      { id: 7, name: 'Luxe', icon: '💎' },
+      { id: 1, name: 'All', icon: '🔥', image: '' },
+      { id: 2, name: 'Women Ethnic', icon: '🥻', image: '' },
+      { id: 3, name: 'Women Western', icon: '👗', image: '' },
+      { id: 4, name: 'Men', icon: '👔', image: '' },
+      { id: 5, name: 'Girls', icon: '👧', image: '' },
+      { id: 6, name: 'Boys', icon: '👦', image: '' },
+      { id: 7, name: 'Bags', icon: '👜', image: '' },
+      { id: 8, name: 'Footwear', icon: '👠', image: '' },
+      { id: 9, name: 'Jeans', icon: '👖', image: '' },
+      { id: 10, name: 'Kurta Sets', icon: '👕', image: '' },
+      { id: 11, name: 'Sarees', icon: '💃', image: '' },
+      { id: 12, name: 'Accessories', icon: '⌚', image: '' },
+      { id: 13, name: 'Jewellery', icon: '💍', image: '' },
+      { id: 14, name: 'Beauty', icon: '💄', image: '' },
+      { id: 15, name: 'Home Decor', icon: '🏠', image: '' },
+      { id: 16, name: 'Kids Wear', icon: '🧒', image: '' },
+      { id: 17, name: 'Winter Wear', icon: '🧥', image: '' },
+      { id: 18, name: 'Sports', icon: '⚽', image: '' },
+      { id: 19, name: 'Watches', icon: '⌚', image: '' },
+      { id: 20, name: 'Luxe', icon: '💎', image: '' },
+      { id: 21, name: 'Electronics', icon: '📱', image: '' },
+      { id: 22, name: 'Gifts', icon: '🎁', image: '' },
     ];
     this.saveCategories(cats);
   },
 
   seedProducts() {
     const prods = [
-      { id: 1, name: 'Silk Evening Gown', brand: 'VERA MODA', category: 'Western Wear', price: 24999, original: 34999, rating: 4.8, reviews: 234, badge: 'New Season', emoji: '👗', bg: '#F5F0EB', inStock: true },
-      { id: 2, name: 'Designer Lehenga Set', brand: 'MANGO', category: 'Ethnic Wear', price: 45999, original: 65000, rating: 4.9, reviews: 189, badge: 'Best Seller', emoji: '🥻', bg: '#F0E6D8', inStock: true },
-      { id: 3, name: 'Leather Shoulder Bag', brand: 'ZARA', category: 'Accessories', price: 15999, original: 22500, rating: 4.7, reviews: 445, badge: 'Trending', emoji: '👜', bg: '#EBE5E0', inStock: true },
-      { id: 4, name: 'Stiletto Heels Gold', brand: 'LOUIS VUITTON', category: 'Footwear', price: 18999, original: 28000, rating: 4.8, reviews: 312, badge: 'Premium', emoji: '👠', bg: '#F5E6E0', inStock: true },
-      { id: 5, name: 'Diamond Pendant Set', brand: 'TIFFANY', category: 'Luxe', price: 125000, original: 159000, rating: 4.9, reviews: 89, badge: 'Luxe', emoji: '💎', bg: '#E8E0F0', inStock: true },
-      { id: 6, name: 'Floral Midi Dress', brand: 'H&M', category: 'Western Wear', price: 8999, original: 12999, rating: 4.6, reviews: 567, badge: 'Sale', emoji: '👗', bg: '#E8F0E8', inStock: true },
-      { id: 7, name: 'Gold Plated Bracelet', brand: 'PANDORA', category: 'Accessories', price: 12999, original: 17999, rating: 4.7, reviews: 298, badge: 'Popular', emoji: '📿', bg: '#F5F0D8', inStock: true },
-      { id: 8, name: 'Embroidered Kurta Set', brand: 'MANGO', category: 'Ethnic Wear', price: 6999, original: 9999, rating: 4.5, reviews: 678, badge: 'Value', emoji: '🥻', bg: '#F0E8E8', inStock: true },
+      { id: 1, name: 'Silk Evening Gown', brand: 'VERA MODA', category: 'Women Western', price: 24999, original: 34999, rating: 4.8, reviews: 234, badge: 'New Season', images: [], description: 'Premium silk evening gown with elegant fall. Perfect for parties and weddings.', sizes: ['S','M','L','XL'], colors: ['Red','Black','Gold'], inStock: true },
+      { id: 2, name: 'Designer Lehenga Set', brand: 'MANGO', category: 'Women Ethnic', price: 45999, original: 65000, rating: 4.9, reviews: 189, badge: 'Best Seller', images: [], description: 'Beautiful designer lehenga with heavy embroidery and gota patti work.', sizes: ['M','L','XL'], colors: ['Red','Pink','Orange'], inStock: true },
+      { id: 3, name: 'Leather Shoulder Bag', brand: 'ZARA', category: 'Bags', price: 15999, original: 22500, rating: 4.7, reviews: 445, badge: 'Trending', images: [], description: 'Genuine leather shoulder bag with gold-plated hardware.', sizes: ['One Size'], colors: ['Brown','Black','Tan'], inStock: true },
+      { id: 4, name: 'Stiletto Heels Gold', brand: 'LOUIS VUITTON', category: 'Footwear', price: 18999, original: 28000, rating: 4.8, reviews: 312, badge: 'Premium', images: [], description: 'Premium stiletto heels with crystal embellishments.', sizes: ['6','7','8','9'], colors: ['Gold','Silver','Black'], inStock: true },
+      { id: 5, name: 'Diamond Pendant Set', brand: 'TIFFANY', category: 'Jewellery', price: 125000, original: 159000, rating: 4.9, reviews: 89, badge: 'Luxe', images: [], description: '18K gold diamond pendant with matching earrings.', sizes: ['One Size'], colors: ['Gold','White'], inStock: true },
+      { id: 6, name: 'Floral Midi Dress', brand: 'H&M', category: 'Women Western', price: 8999, original: 12999, rating: 4.6, reviews: 567, badge: 'Sale', images: [], description: 'Floral printed midi dress with belt. Lightweight and comfortable.', sizes: ['XS','S','M','L'], colors: ['Blue','Pink','Yellow'], inStock: true },
+      { id: 7, name: 'Gold Plated Bracelet', brand: 'PANDORA', category: 'Accessories', price: 12999, original: 17999, rating: 4.7, reviews: 298, badge: 'Popular', images: [], description: 'Gold plated charm bracelet with adjustable chain.', sizes: ['One Size'], colors: ['Gold','Rose Gold'], inStock: true },
+      { id: 8, name: 'Embroidered Kurta Set', brand: 'MANGO', category: 'Kurta Sets', price: 6999, original: 9999, rating: 4.5, reviews: 678, badge: 'Value', images: [], description: 'Hand embroidered kurta with churidar and dupatta set.', sizes: ['S','M','L','XL','XXL'], colors: ['White','Blue','Green'], inStock: true },
+      { id: 9, name: 'Denim Jacket', brand: 'LEVI\'S', category: 'Men', price: 4999, original: 7999, rating: 4.6, reviews: 890, badge: 'Trending', images: [], description: 'Classic denim jacket with button closure and chest pockets.', sizes: ['S','M','L','XL','XXL'], colors: ['Blue','Black','Grey'], inStock: true },
+      { id: 10, name: 'Designer Saree', brand: 'SIXTEEEN', category: 'Sarees', price: 15999, original: 25000, rating: 4.8, reviews: 456, badge: 'New', images: [], description: 'Banarasi silk saree with zari border and heavy pallu.', sizes: ['Free Size'], colors: ['Red','Green','Blue'], inStock: true },
     ];
     this.saveProducts(prods);
   },
 
   seedOrders() {
     const orders = [
-      { id: 'ORD-SH2026001', customer: 'Priya Sharma', email: 'priya@email.com', items: [{ name: 'Silk Evening Gown', qty: 1, price: 24999 }], total: 24999, date: '28 Jun 2026', status: 'Delivered', address: '12 MG Road, Mumbai' },
-      { id: 'ORD-SH2026002', customer: 'Ananya Gupta', email: 'ananya@email.com', items: [{ name: 'Designer Lehenga Set', qty: 1, price: 45999 }], total: 45999, date: '29 Jun 2026', status: 'Shipped', address: '45 Lajpat Nagar, Delhi' },
-      { id: 'ORD-SH2026003', customer: 'Riya Patel', email: 'riya@email.com', items: [{ name: 'Leather Shoulder Bag', qty: 1, price: 15999 }], total: 15999, date: '30 Jun 2026', status: 'Processing', address: '78 Satellite Road, Ahmedabad' },
-      { id: 'ORD-SH2026004', customer: 'Neha Singh', email: 'neha@email.com', items: [{ name: 'Stiletto Heels Gold', qty: 1, price: 18999 }, { name: 'Gold Plated Bracelet', qty: 1, price: 12999 }], total: 31998, date: '30 Jun 2026', status: 'Pending', address: '33 Park Street, Kolkata' },
+      { id: 'ORD-MF001', customer: 'Priya Sharma', email: 'priya@email.com', items: [{ name: 'Silk Evening Gown', qty: 1, price: 24999 }], total: 24999, date: '28 Jun 2026', status: 'Delivered', address: '12 MG Road, Mumbai', phone: '9876543210', payment: 'COD' },
+      { id: 'ORD-MF002', customer: 'Ananya Gupta', email: 'ananya@email.com', items: [{ name: 'Designer Lehenga Set', qty: 1, price: 45999 }], total: 45999, date: '29 Jun 2026', status: 'Shipped', address: '45 Lajpat Nagar, Delhi', phone: '9876543211', payment: 'COD' },
+      { id: 'ORD-MF003', customer: 'Riya Patel', email: 'riya@email.com', items: [{ name: 'Leather Shoulder Bag', qty: 1, price: 15999 }], total: 15999, date: '30 Jun 2026', status: 'Processing', address: '78 Satellite Road, Ahmedabad', phone: '9876543212', payment: 'Online' },
     ];
     this.saveOrders(orders);
   },
 
   seedUsers() {
     const users = [
-      { id: 'USR-001', name: 'Priya Sharma', email: 'priya@email.com', phone: '9876543210', password: 'user123', createdAt: '2026-01-15' },
-      { id: 'USR-002', name: 'Ananya Gupta', email: 'ananya@email.com', phone: '9876543211', password: 'user123', createdAt: '2026-02-20' },
+      { id: 'USR-001', name: 'Priya Sharma', email: 'priya@email.com', phone: '9876543210', password: 'user123', address: '12 MG Road', city: 'Mumbai', pincode: '400001', avatar: '', createdAt: '2026-01-15' },
+      { id: 'USR-002', name: 'Ananya Gupta', email: 'ananya@email.com', phone: '9876543211', password: 'user123', address: '45 Lajpat Nagar', city: 'Delhi', pincode: '110001', avatar: '', createdAt: '2026-02-20' },
     ];
     this.saveUsers(users);
   },
 
   seedCoupons() {
     const coupons = [
-      { id: 1, code: 'WELCOME50', discount: 50, type: 'flat', minOrder: 999, uses: 0, maxUses: 100, active: true },
-      { id: 2, code: 'FASHION20', discount: 20, type: 'percent', minOrder: 2999, uses: 0, maxUses: 200, active: true },
-      { id: 3, code: 'PREMIUM', discount: 500, type: 'flat', minOrder: 9999, uses: 0, maxUses: 50, active: true },
+      { id: 1, code: 'WELCOME50', discount: 50, type: 'flat', minOrder: 999, uses: 0, maxUses: 100, active: true, maxDiscount: 0 },
+      { id: 2, code: 'FASHION20', discount: 20, type: 'percent', minOrder: 2999, uses: 0, maxUses: 200, active: true, maxDiscount: 2000 },
+      { id: 3, code: 'FESTIVE100', discount: 100, type: 'flat', minOrder: 5000, uses: 0, maxUses: 50, active: true, maxDiscount: 0 },
+      { id: 4, code: 'NEWUSER', discount: 30, type: 'percent', minOrder: 0, uses: 0, maxUses: 500, active: true, maxDiscount: 1500 },
     ];
     this.saveCoupons(coupons);
   }
