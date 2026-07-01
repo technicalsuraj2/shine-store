@@ -36,7 +36,7 @@ function showToast(msg, type = 'gold') {
   if (old) old.remove();
   const t = document.createElement('div');
   t.className = `toast ${type}`;
-  t.innerHTML = `<span>${type === 'gold' ? '✨' : '❌'}</span> ${msg}`;
+  t.innerHTML = `<span>${type === 'gold' ? '<i class="fas fa-star"></i>' : '<i class="fas fa-exclamation-circle"></i>'}</span> ${msg}`;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 3500);
 }
@@ -66,7 +66,7 @@ function renderBanners() {
         <p>${b.subtitle}</p>
         ${b.link ? '<a href="'+b.link+'" class="slide-btn">Shop Now →</a>' : ''}
       </div>
-      ${b.image ? `<img src="${b.image}" alt="${b.title}" class="slide-img">` : `<div class="slide-emoji">🎉</div>`}
+      ${b.image ? `<img src="${b.image}" alt="${b.title}" class="slide-img">` : `<div class="slide-emoji"><i class="fas fa-gem"></i></div>`}
     </div>
   `).join('');
   dots.innerHTML = banners.map((_, i) => `<span class="dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${i})"></span>`).join('');
@@ -119,7 +119,7 @@ function renderCategories() {
   const cats = DataStore.getCategories();
   bar.innerHTML = cats.map(c => `
     <button class="cat-circle ${c.name === activeCategory ? 'active' : ''}" onclick="filterCategory('${c.name}')">
-      <span class="cat-circle-icon">${c.icon}</span>
+      <span class="cat-circle-icon">${c.image ? `<img src="${c.image}" alt="${c.name}" class="cat-circle-img">` : `<i class="fas fa-folder"></i>`}</span>
       <span class="cat-circle-label">${c.name}</span>
     </button>
   `).join('');
@@ -147,15 +147,15 @@ function renderProducts(search) {
   grid.innerHTML = prods.map((p, i) => `
     <div class="product-card" style="animation-delay:${i * 0.04}s" onclick="openQuickView(${p.id})">
       ${p.badge ? `<div class="product-badge ${p.badge === 'Sale' ? 'sale' : p.badge === 'Luxe' ? 'gold' : ''}">${p.badge}</div>` : ''}
-      <button class="product-wishlist ${wishlistItems.includes(p.id) ? 'active' : ''}" onclick="event.stopPropagation();toggleWishlist(${p.id})">${wishlistItems.includes(p.id) ? '❤️' : '🤍'}</button>
+      <button class="product-wishlist ${wishlistItems.includes(p.id) ? 'active' : ''}" onclick="event.stopPropagation();toggleWishlist(${p.id})">${wishlistItems.includes(p.id) ? '<i class="fas fa-heart"></i>' : '<i class="far fa-heart"></i>'}</button>
       <div class="product-img-wrap">
-        ${p.images && p.images[0] ? `<img src="${p.images[0]}" alt="${p.name}" class="product-img">` : `<div class="product-main-img">${p.emoji || '👗'}</div>`}
+        ${p.images && p.images[0] ? `<img src="${p.images[0]}" alt="${p.name}" class="product-img">` : `<div class="product-main-img"><i class="fas fa-tshirt"></i></div>`}
         <button class="product-add" onclick="event.stopPropagation();addToCart(${p.id})">+</button>
       </div>
       <div class="product-info">
         <div class="product-brand">${p.brand}</div>
         <div class="product-name">${p.name}</div>
-        <div class="product-rating">⭐ ${p.rating} <span>(${p.reviews})</span></div>
+        <div class="product-rating"><i class="fas fa-star" style="color:var(--gold)"></i> ${p.rating} <span>(${p.reviews})</span></div>
         <div class="product-price">${formatPrice(p.price)} ${p.original ? `<s>${formatPrice(p.original)}</s>` : ''}</div>
         ${p.original && p.original > p.price ? `<div class="product-off">${Math.round((1 - p.price/p.original) * 100)}% OFF</div>` : ''}
       </div>
@@ -181,7 +181,7 @@ function openQuickView(id) {
     galleryHtml = `<div class="qv-gallery">${p.images.map((img, i) => `<img src="${img}" alt="${p.name}" class="qv-img" onclick="currentQvImg=${i};updateQvGallery()">`).join('')}</div>`;
     galleryHtml += `<div class="qv-main-img"><img src="${p.images[0]}" id="qvMainImage" alt="${p.name}"></div>`;
   } else {
-    galleryHtml = `<div class="qv-main-img" style="background:${p.bg || '#f5f5f5'}"><div class="qv-emoji">${p.emoji || '👗'}</div></div>`;
+    galleryHtml = `<div class="qv-main-img" style="background:${p.bg || '#f5f5f5'}"><div class="qv-emoji"><i class="fas fa-tshirt"></i></div></div>`;
   }
 
   const similar = DataStore.getProducts().filter(x => x.category === p.category && x.id !== p.id).slice(0, 8);
@@ -193,7 +193,7 @@ function openQuickView(id) {
       <div class="qv-right">
         <div class="qv-brand">${p.brand}</div>
         <h2 class="qv-name">${p.name}</h2>
-        <div class="qv-rating">⭐ ${p.rating} <span>(${p.reviews} reviews)</span></div>
+        <div class="qv-rating"><i class="fas fa-star" style="color:var(--gold)"></i> ${p.rating} <span>(${p.reviews} reviews)</span></div>
         <div class="qv-price-row">
           <span class="qv-price">${formatPrice(p.price)}</span>
           ${p.original ? `<span class="qv-original"><s>${formatPrice(p.original)}</s></span>` : ''}
@@ -203,8 +203,8 @@ function openQuickView(id) {
         ${p.sizes ? `<div class="qv-section"><h4>Size</h4><div class="qv-sizes">${p.sizes.map(s => `<button class="qv-size-btn" onclick="$$('.qv-size-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')">${s}</button>`).join('')}</div></div>` : ''}
         ${p.colors ? `<div class="qv-section"><h4>Color</h4><div class="qv-colors">${p.colors.map(c => `<button class="qv-color-btn" style="background:${c.toLowerCase()}" onclick="$$('.qv-color-btn').forEach(b=>b.classList.remove('active'));this.classList.add('active')" title="${c}"></button>`).join('')}</div></div>` : ''}
         <div class="qv-actions">
-          <button class="qv-btn qv-cart" onclick="addToCart(${p.id});closeQuickView()">${inCart ? '✓ Added to Cart' : 'Add to Cart'}</button>
-          <button class="qv-btn qv-wishlist ${inWishlist ? 'active' : ''}" onclick="toggleWishlist(${p.id})">${inWishlist ? '❤️' : '🤍'} Wishlist</button>
+          <button class="qv-btn qv-cart" onclick="addToCart(${p.id});closeQuickView()">${inCart ? '<i class="fas fa-check"></i> Added to Cart' : 'Add to Cart'}</button>
+          <button class="qv-btn qv-wishlist ${inWishlist ? 'active' : ''}" onclick="toggleWishlist(${p.id})">${inWishlist ? '<i class="fas fa-heart"></i>' : '<i class="far fa-heart"></i>'} Wishlist</button>
         </div>
         <div class="qv-section"><h4>Delivery</h4><p style="font-size:13px;color:var(--mid-grey)">Free delivery on orders above ₹5,000 • COD available</p></div>
       </div>
@@ -212,16 +212,16 @@ function openQuickView(id) {
     <div class="qv-section" style="margin-top:30px">
       <h4>Reviews (${reviews.length})</h4>
       ${reviews.length === 0 ? '<p style="font-size:13px;color:var(--mid-grey)">No reviews yet. Be the first to review!</p>' : reviews.slice(0, 5).map(r => `
-        <div class="review-item"><strong>${r.name}</strong> <span style="color:var(--gold)">${'⭐'.repeat(r.rating)}</span><p>${r.comment}</p><small style="color:var(--mid-grey)">${r.date}</small></div>
+        <div class="review-item"><strong>${r.name}</strong> <span style="color:var(--gold)">${'<i class=\"fas fa-star\"></i>'.repeat(r.rating)}</span><p>${r.comment}</p><small style="color:var(--mid-grey)">${r.date}</small></div>
       `).join('')}
-      <button class="qv-btn qv-outline" style="margin-top:10px" onclick="showReviewForm(${p.id})">✏️ Write a Review</button>
+      <button class="qv-btn qv-outline" style="margin-top:10px" onclick="showReviewForm(${p.id})"><i class="fas fa-pen"></i> Write a Review</button>
     </div>
     ${similar.length > 0 ? `
     <div class="qv-section" style="margin-top:30px">
       <h4>Similar Products</h4>
       <div class="similar-grid">${similar.map(x => `
         <div class="similar-card" onclick="openQuickView(${x.id})">
-          <div class="similar-img">${x.images && x.images[0] ? `<img src="${x.images[0]}" alt="${x.name}">` : (x.emoji || '👗')}</div>
+          <div class="similar-img">${x.images && x.images[0] ? `<img src="${x.images[0]}" alt="${x.name}">` : '<i class="fas fa-tshirt"></i>'}</div>
           <div class="similar-name">${x.name}</div>
           <div class="similar-price">${formatPrice(x.price)}</div>
         </div>
@@ -262,7 +262,7 @@ function showReviewForm(productId) {
   const comment = prompt('Your review:');
   if (!comment) return;
   DataStore.addReview({ productId, name, rating: parseInt(rating), comment });
-  showToast('Review submitted! ⭐', 'gold');
+  showToast('Review submitted! <i class="fas fa-star"></i>', 'gold');
   openQuickView(productId);
 }
 
@@ -326,9 +326,9 @@ function renderCartDrawer() {
     const p = DataStore.getProduct(i.id);
     if (!p) return '';
     return `<div class="cart-d-item">
-      <div class="cart-d-item-img">${p.images && p.images[0] ? `<img src="${p.images[0]}" alt="${p.name}">` : (p.emoji || '👗')}</div>
+      <div class="cart-d-item-img">${p.images && p.images[0] ? `<img src="${p.images[0]}" alt="${p.name}">` : '<i class="fas fa-tshirt"></i>'}</div>
       <div class="cart-d-item-info"><h4>${p.name}</h4><div class="item-price">${formatPrice(p.price)}</div><div class="cart-d-qty"><button onclick="updateQty(${p.id}, -1)">−</button><span>${i.qty}</span><button onclick="updateQty(${p.id}, 1)">+</button></div></div>
-      <button class="cart-d-item-remove" onclick="removeFromCart(${p.id})">✕</button>
+      <button class="cart-d-item-remove" onclick="removeFromCart(${p.id})"><i class="fas fa-times"></i></button>
     </div>`;
   }).join('');
   if (totalEl) totalEl.textContent = formatPrice(getCartTotal());
@@ -362,14 +362,14 @@ function showWishlist() {
   grid.innerHTML = prods.map((p, i) => `
     <div class="product-card" onclick="openQuickView(${p.id})" style="animation-delay:${i*0.04}s">
       ${p.badge ? `<div class="product-badge">${p.badge}</div>` : ''}
-      <button class="product-wishlist active" onclick="event.stopPropagation();toggleWishlist(${p.id})">❤️</button>
-      <div class="product-img-wrap">${p.images && p.images[0] ? `<img src="${p.images[0]}" class="product-img">` : `<div class="product-main-img">${p.emoji || '👗'}</div>`}
+      <button class="product-wishlist active" onclick="event.stopPropagation();toggleWishlist(${p.id})"><i class="fas fa-heart"></i></button>
+      <div class="product-img-wrap">${p.images && p.images[0] ? `<img src="${p.images[0]}" class="product-img">` : `<div class="product-main-img"><i class="fas fa-tshirt"></i></div>`}
         <button class="product-add" onclick="event.stopPropagation();addToCart(${p.id})">+</button>
       </div>
       <div class="product-info"><div class="product-brand">${p.brand}</div><div class="product-name">${p.name}</div><div class="product-price">${formatPrice(p.price)}</div></div>
     </div>
   `).join('');
-  showToast(`❤️ ${prods.length} wishlist items`, 'gold');
+  showToast(`<i class="fas fa-heart"></i> ${prods.length} wishlist items`, 'gold');
 }
 
 function openAuth() { $('#authOverlay').classList.add('open'); }
@@ -390,7 +390,7 @@ function handleLogin(e) {
   localStorage.setItem('mf_current_user', JSON.stringify(currentUser));
   closeAuth();
   updateUserUI();
-  showToast(`Welcome back, ${currentUser.name}! ✨`, 'gold');
+  showToast(`Welcome back, ${currentUser.name}!`, 'gold');
 }
 
 function handleRegister(e) {
@@ -403,7 +403,7 @@ function handleRegister(e) {
   localStorage.setItem('mf_current_user', JSON.stringify(currentUser));
   closeAuth();
   updateUserUI();
-  showToast(`Welcome, ${name}! 🎉`, 'gold');
+  showToast(`Welcome, ${name}!`, 'gold');
 }
 
 function logout() {

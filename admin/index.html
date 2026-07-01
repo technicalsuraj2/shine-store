@@ -60,24 +60,24 @@
       <div class="topbar">
         <h2 id="pageTitle">Dashboard</h2>
         <div class="topbar-actions">
-          <a href="../" target="_blank"><button class="topbar-btn">🔗 View Store</button></a>
+          <a href="../" target="_blank"><button class="topbar-btn"><i class="fas fa-external-link-alt"></i> View Store</button></a>
           <span style="font-size:13px;color:var(--mid-grey)" id="clock"></span>
         </div>
       </div>
 
       <div class="page-content active" id="page-dashboard">
         <div class="stats-grid" id="statsGrid"></div>
-        <div class="card"><div class="card-header"><h3>📋 Recent Orders</h3></div><div class="card-body"><div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="recentOrdersTable"></tbody></table></div></div></div>
+        <div class="card"><div class="card-header"><h3><i class="fas fa-clipboard-list"></i> Recent Orders</h3></div><div class="card-body"><div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Action</th></tr></thead><tbody id="recentOrdersTable"></tbody></table></div></div></div>
       </div>
 
       <div class="page-content" id="page-orders">
-        <div class="card"><div class="card-header"><h3>📦 All Orders</h3></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-box"></i> All Orders</h3></div><div class="card-body">
           <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody id="ordersTable"></tbody></table></div>
         </div></div>
       </div>
 
       <div class="page-content" id="page-products">
-        <div class="card"><div class="card-header"><h3>👗 Products</h3><button class="btn btn-gold btn-sm" onclick="showPage('addproduct')">+ Add Product</button></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-tshirt"></i> Products</h3><button class="btn btn-gold btn-sm" onclick="showPage('addproduct')">+ Add Product</button></div><div class="card-body">
           <div style="margin-bottom:15px;display:flex;gap:10px;flex-wrap:wrap">
             <input type="text" id="adminSearchInput" placeholder="Search products..." style="padding:10px 14px;border:1px solid var(--light-grey);flex:1;font-size:13px" oninput="adminSearchProducts(this.value)">
             <select id="adminCategoryFilter" style="padding:10px;border:1px solid var(--light-grey);font-size:13px" onchange="adminSearchProducts()"></select>
@@ -87,7 +87,7 @@
       </div>
 
       <div class="page-content" id="page-addproduct">
-        <div class="card"><div class="card-header"><h3 id="addProductTitle">➕ Add New Product</h3></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3 id="addProductTitle"><i class="fas fa-plus-circle"></i> Add New Product</h3></div><div class="card-body">
           <form id="adminProductForm" onsubmit="saveProduct(event)" style="display:grid;grid-template-columns:1fr 1fr;gap:18px">
             <input type="hidden" id="prodId">
             <div class="form-group" style="grid-column:1/-1"><label>Product Name</label><input type="text" id="prodName" required></div>
@@ -96,7 +96,6 @@
             <div class="form-group"><label>Price (₹)</label><input type="number" id="prodPrice" required></div>
             <div class="form-group"><label>Original Price (₹)</label><input type="number" id="prodOriginal"></div>
             <div class="form-group"><label>Badge</label><input type="text" id="prodBadge" placeholder="e.g. Sale, New, Premium"></div>
-            <div class="form-group"><label>Emoji</label><input type="text" id="prodEmoji" placeholder="👗"></div>
             <div class="form-group"><label>Stock</label><select id="prodStock"><option value="true">In Stock</option><option value="false">Out of Stock</option></select></div>
             <div class="form-group" style="grid-column:1/-1"><label>Description</label><textarea id="prodDesc" rows="3" placeholder="Product description..."></textarea></div>
             <div class="form-group"><label>Sizes (comma separated)</label><input type="text" id="prodSizes" placeholder="S, M, L, XL"></div>
@@ -116,37 +115,37 @@
       </div>
 
       <div class="page-content" id="page-categories">
-        <div class="card"><div class="card-header"><h3>📁 Categories</h3><button class="btn btn-gold btn-sm" onclick="addCategory()">+ Add Category</button></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-folder"></i> Categories</h3><button class="btn btn-gold btn-sm" onclick="addCategory()">+ Add Category</button></div><div class="card-body">
           <div class="table-wrap"><table><thead><tr><th>ID</th><th>Icon</th><th>Name</th><th>Actions</th></tr></thead><tbody id="categoriesTable"></tbody></table></div>
         </div></div>
       </div>
 
       <div class="page-content" id="page-users">
-        <div class="card"><div class="card-header"><h3>👥 Registered Users</h3></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-users"></i> Registered Users</h3></div><div class="card-body">
           <div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Registered</th><th>Orders</th></tr></thead><tbody id="usersTable"></tbody></table></div>
         </div></div>
       </div>
 
       <div class="page-content" id="page-coupons">
-        <div class="card"><div class="card-header"><h3>🏷️ Coupons</h3><button class="btn btn-gold btn-sm" onclick="addCoupon()">+ Add Coupon</button></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-tag"></i> Coupons</h3><button class="btn btn-gold btn-sm" onclick="addCoupon()">+ Add Coupon</button></div><div class="card-body">
           <div class="table-wrap"><table><thead><tr><th>Code</th><th>Discount</th><th>Type</th><th>Min Order</th><th>Max Discount</th><th>Uses</th><th>Status</th><th>Actions</th></tr></thead><tbody id="couponsTable"></tbody></table></div>
         </div></div>
       </div>
 
       <div class="page-content" id="page-banners">
-        <div class="card"><div class="card-header"><h3>🎪 Banner Slides</h3><button class="btn btn-gold btn-sm" onclick="addBanner()">+ Add Banner</button></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-images"></i> Banner Slides</h3><button class="btn btn-gold btn-sm" onclick="addBanner()">+ Add Banner</button></div><div class="card-body">
           <div class="table-wrap"><table><thead><tr><th>Title</th><th>Subtitle</th><th>BG Color</th><th>Status</th><th>Actions</th></tr></thead><tbody id="bannersTable"></tbody></table></div>
         </div></div>
       </div>
 
       <div class="page-content" id="page-reviews">
-        <div class="card"><div class="card-header"><h3>⭐ Product Reviews</h3></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-star"></i> Product Reviews</h3></div><div class="card-body">
           <div class="table-wrap"><table><thead><tr><th>Product</th><th>User</th><th>Rating</th><th>Comment</th><th>Date</th><th>Actions</th></tr></thead><tbody id="reviewsTable"></tbody></table></div>
         </div></div>
       </div>
 
       <div class="page-content" id="page-settings">
-        <div class="card"><div class="card-header"><h3>⚙️ System Settings</h3></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-cog"></i> System Settings</h3></div><div class="card-body">
           <div class="form-grid">
             <div class="form-group"><label>Store Name</label><input type="text" id="setStoreName" value="Mithila Fashions"></div>
             <div class="form-group"><label>Currency</label><input type="text" value="INR (₹)" disabled></div>
@@ -158,34 +157,34 @@
             <div class="form-group" style="grid-column:1/-1"><button class="btn btn-black" onclick="saveSettings()">Save Settings</button></div>
           </div>
         </div></div>
-        <div class="card"><div class="card-header"><h3>🛒 Store Status</h3></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-store"></i> Store Status</h3></div><div class="card-body">
           <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <button class="btn btn-black" onclick="toggleStoreStatus()" id="storeStatusBtn">🔴 Close Store</button>
-            <button class="btn btn-outline" onclick="alert('Maintenance mode toggled')">🔧 Maintenance Mode</button>
+            <button class="btn btn-black" onclick="toggleStoreStatus()" id="storeStatusBtn"><i class="fas fa-toggle-off"></i> <span id="storeStatusText">Close Store</span></button>
+            <button class="btn btn-outline" onclick="alert('Maintenance mode toggled')"><i class="fas fa-wrench"></i> Maintenance Mode</button>
           </div>
         </div></div>
       </div>
 
       <div class="page-content" id="page-backup">
-        <div class="card"><div class="card-header"><h3>💾 Backup & Restore</h3></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-database"></i> Backup & Restore</h3></div><div class="card-body">
           <p style="font-size:13px;color:var(--mid-grey);margin-bottom:20px">Export all store data (products, orders, users, coupons, banners) as JSON, or import a previous backup.</p>
           <div style="display:flex;gap:15px;flex-wrap:wrap">
-            <button class="btn btn-black" onclick="exportBackup()">⬇️ Export Backup</button>
-            <button class="btn btn-outline" onclick="document.getElementById('importFileInput').click()">⬆️ Import Backup</button>
+            <button class="btn btn-black" onclick="exportBackup()"><i class="fas fa-download"></i> Export Backup</button>
+            <button class="btn btn-outline" onclick="document.getElementById('importFileInput').click()"><i class="fas fa-upload"></i> Import Backup</button>
             <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importBackup(event)">
-            <button class="btn btn-red" onclick="resetAllData()">⚠️ Reset All Data</button>
+            <button class="btn btn-red" onclick="resetAllData()"><i class="fas fa-exclamation-triangle"></i> Reset All Data</button>
           </div>
         </div></div>
       </div>
 
       <div class="page-content" id="page-analytics">
-        <div class="card"><div class="card-header"><h3>📈 Analytics</h3></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-chart-line"></i> Analytics</h3></div><div class="card-body">
           <div class="stats-grid" id="analyticsGrid"></div>
         </div></div>
       </div>
 
       <div class="page-content" id="page-seo">
-        <div class="card"><div class="card-header"><h3>🔍 SEO Settings</h3></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-search"></i> SEO Settings</h3></div><div class="card-body">
           <div class="form-grid">
             <div class="form-group" style="grid-column:1/-1"><label>Meta Title</label><input type="text" id="seoTitle" value="Mithila Fashions - Premium Fashion Store"></div>
             <div class="form-group" style="grid-column:1/-1"><label>Meta Description</label><textarea id="seoDesc" rows="3">Premium fashion store for men, women, and kids. Shop the latest collection of ethnic wear, western wear, accessories and more.</textarea></div>
@@ -196,45 +195,45 @@
       </div>
 
       <div class="page-content" id="page-pages">
-        <div class="card"><div class="card-header"><h3>📄 Static Pages</h3></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-file-alt"></i> Static Pages</h3></div><div class="card-body">
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:15px">
-            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit About Us page')">📄 About Us</button>
-            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Contact page')">📄 Contact</button>
-            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Privacy Policy')">📄 Privacy Policy</button>
-            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Terms of Service')">📄 Terms</button>
-            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Shipping Policy')">📄 Shipping Policy</button>
-            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Return Policy')">📄 Return Policy</button>
+            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit About Us page')"><i class="fas fa-file-alt"></i> About Us</button>
+            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Contact page')"><i class="fas fa-file-alt"></i> Contact</button>
+            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Privacy Policy')"><i class="fas fa-file-alt"></i> Privacy Policy</button>
+            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Terms of Service')"><i class="fas fa-file-alt"></i> Terms</button>
+            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Shipping Policy')"><i class="fas fa-file-alt"></i> Shipping Policy</button>
+            <button class="btn btn-outline" style="padding:20px" onclick="alert('Edit Return Policy')"><i class="fas fa-file-alt"></i> Return Policy</button>
           </div>
         </div></div>
       </div>
 
       <div class="page-content" id="page-brands">
-        <div class="card"><div class="card-header"><h3>🏢 Brand Management</h3><button class="btn btn-gold btn-sm" onclick="addBrand()">+ Add Brand</button></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-building"></i> Brand Management</h3><button class="btn btn-gold btn-sm" onclick="addBrand()">+ Add Brand</button></div><div class="card-body">
           <div class="table-wrap"><table><thead><tr><th>Brand Name</th><th>Products</th><th>Actions</th></tr></thead><tbody id="brandsTable"></tbody></table></div>
         </div></div>
       </div>
 
       <div class="page-content" id="page-offers">
-        <div class="card"><div class="card-header"><h3>🎯 Special Offers</h3><button class="btn btn-gold btn-sm" onclick="addOffer()">+ Add Offer</button></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-bullseye"></i> Special Offers</h3><button class="btn btn-gold btn-sm" onclick="addOffer()">+ Add Offer</button></div><div class="card-body">
           <div class="table-wrap"><table><thead><tr><th>Title</th><th>Discount</th><th>Valid Till</th><th>Status</th><th>Actions</th></tr></thead><tbody id="offersTable"></tbody></table></div>
         </div></div>
       </div>
 
       <div class="page-content" id="page-newsletter">
-        <div class="card"><div class="card-header"><h3>📧 Newsletter Subscribers</h3></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-envelope"></i> Newsletter Subscribers</h3></div><div class="card-body">
           <p style="color:var(--mid-grey);margin-bottom:15px">Subscribers are stored locally. Export to manage them.</p>
           <div id="subscribersList"><p style="color:var(--mid-grey)">No subscribers yet.</p></div>
         </div></div>
       </div>
 
       <div class="page-content" id="page-support">
-        <div class="card"><div class="card-header"><h3>🎧 Support Tickets</h3></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-headset"></i> Support Tickets</h3></div><div class="card-body">
           <p style="color:var(--mid-grey)">Support system - coming soon. Currently all inquiries are handled via email.</p>
         </div></div>
       </div>
 
       <div class="page-content" id="page-shipping">
-        <div class="card"><div class="card-header"><h3>🚚 Shipping Settings</h3></div><div class="card-body">
+        <div class="card"><div class="card-header"><h3><i class="fas fa-truck"></i> Shipping Settings</h3></div><div class="card-body">
           <div class="form-grid">
             <div class="form-group"><label>Free Shipping Above</label><input type="number" id="shipFree" value="5000"></div>
             <div class="form-group"><label>Standard Shipping Charge</label><input type="number" id="shipCharge" value="499"></div>

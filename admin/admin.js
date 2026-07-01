@@ -62,12 +62,12 @@ function renderDashboard() {
   const orders = DataStore.getOrders();
   const grid = document.getElementById('statsGrid');
   const cards = [
-    { value: stats.totalOrders, label: 'Total Orders', icon: '📦', cls: 'gold', change: '+12% this month' },
-    { value: '₹' + stats.totalRevenue.toLocaleString('en-IN'), label: 'Revenue', icon: '💰', cls: 'green', change: '+8% this month' },
-    { value: stats.totalUsers, label: 'Users', icon: '👥', cls: 'blue', change: '+5% this month' },
-    { value: stats.totalProducts, label: 'Products', icon: '👗', cls: 'red', change: 'Stable' },
+    { value: stats.totalOrders, label: 'Total Orders', icon: '<i class="fas fa-box"></i>', cls: 'gold', change: '+12% this month' },
+    { value: '₹' + stats.totalRevenue.toLocaleString('en-IN'), label: 'Revenue', icon: '<i class="fas fa-rupee-sign"></i>', cls: 'green', change: '+8% this month' },
+    { value: stats.totalUsers, label: 'Users', icon: '<i class="fas fa-users"></i>', cls: 'blue', change: '+5% this month' },
+    { value: stats.totalProducts, label: 'Products', icon: '<i class="fas fa-tshirt"></i>', cls: 'red', change: 'Stable' },
     { value: stats.pendingOrders, label: 'Pending', icon: '⏳', cls: 'gold', change: 'Needs attention' },
-    { value: orders.filter(o => o.status === 'Delivered').length, label: 'Delivered', icon: '✅', cls: 'green', change: 'Completed' },
+    { value: orders.filter(o => o.status === 'Delivered').length, label: 'Delivered', icon: '<i class="fas fa-check-circle"></i>', cls: 'green', change: 'Completed' },
   ];
   grid.innerHTML = cards.map(c => `
     <div class="stat-card">
@@ -90,10 +90,10 @@ function renderAnalytics() {
   const totalReviews = DataStore.getProducts().reduce((s, p) => s + (p.reviews || 0), 0);
   const topProducts = [...products].sort((a, b) => b.reviews - a.reviews).slice(0, 5);
   document.getElementById('analyticsGrid').innerHTML = `
-    <div class="stat-card"><div class="stat-card-header"><div><div class="stat-card-value">${categories.length}</div><div class="stat-card-label">Categories</div></div><div class="stat-card-icon gold">📁</div></div></div>
-    <div class="stat-card"><div class="stat-card-header"><div><div class="stat-card-value">${totalReviews}</div><div class="stat-card-label">Total Reviews</div></div><div class="stat-card-icon blue">⭐</div></div></div>
-    <div class="stat-card"><div class="stat-card-header"><div><div class="stat-card-value">${products.length}</div><div class="stat-card-label">Total Products</div></div><div class="stat-card-icon red">👗</div></div></div>
-    <div class="stat-card" style="grid-column:span 3"><h3 style="font-size:14px;font-weight:700;margin-bottom:15px">🏆 Top Products</h3>${topProducts.map(p => `<div style="padding:8px 0;border-bottom:1px solid var(--light-grey);font-size:13px">⭐ ${p.name} — ${p.reviews} reviews</div>`).join('')}</div>
+    <div class="stat-card"><div class="stat-card-header"><div><div class="stat-card-value">${categories.length}</div><div class="stat-card-label">Categories</div></div><div class="stat-card-icon gold"><i class="fas fa-folder"></i></div></div></div>
+    <div class="stat-card"><div class="stat-card-header"><div><div class="stat-card-value">${totalReviews}</div><div class="stat-card-label">Total Reviews</div></div><div class="stat-card-icon blue"><i class="fas fa-star"></i></div></div></div>
+    <div class="stat-card"><div class="stat-card-header"><div><div class="stat-card-value">${products.length}</div><div class="stat-card-label">Total Products</div></div><div class="stat-card-icon red"><i class="fas fa-tshirt"></i></div></div></div>
+    <div class="stat-card" style="grid-column:span 3"><h3 style="font-size:14px;font-weight:700;margin-bottom:15px"><i class="fas fa-trophy"></i> Top Products</h3>${topProducts.map(p => `<div style="padding:8px 0;border-bottom:1px solid var(--light-grey);font-size:13px"><i class="fas fa-star"></i> ${p.name} — ${p.reviews} reviews</div>`).join('')}</div>
   `;
 }
 
@@ -137,15 +137,15 @@ function renderProducts() {
   document.getElementById('productsTable').innerHTML = filtered.map(p => `
     <tr>
       <td>${p.id}</td>
-      <td>${p.images && p.images[0] ? `<img src="${p.images[0]}" style="width:40px;height:40px;object-fit:cover">` : (p.emoji || '👗')}</td>
+      <td>${p.images && p.images[0] ? `<img src="${p.images[0]}" style="width:40px;height:40px;object-fit:cover">` : (p.emoji || '')}</td>
       <td><strong>${p.name}</strong></td>
       <td>${p.brand}</td>
       <td>${p.category}</td>
       <td>₹${p.price.toLocaleString('en-IN')}</td>
-      <td>${p.inStock ? '✅' : '❌'}</td>
+      <td>${p.inStock ? '<i class="fas fa-check-circle" style="color:var(--green)"></i>' : '<i class="fas fa-times-circle" style="color:var(--red)"></i>'}</td>
       <td>
-        <button class="action-btn btn-sm" onclick="editProduct(${p.id})">✏️</button>
-        <button class="action-btn btn-sm" onclick="deleteProduct(${p.id})">🗑️</button>
+        <button class="action-btn btn-sm" onclick="editProduct(${p.id})"><i class="fas fa-edit"></i></button>
+        <button class="action-btn btn-sm" onclick="deleteProduct(${p.id})"><i class="fas fa-trash"></i></button>
       </td>
     </tr>
   `).join('');
@@ -154,7 +154,7 @@ function renderProducts() {
 function adminSearchProducts() { renderProducts(); }
 
 function openAddProduct() {
-  document.getElementById('addProductTitle').textContent = '➕ Add New Product';
+  document.getElementById('addProductTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Add New Product';
   document.getElementById('adminProductForm').reset();
   document.getElementById('prodId').value = '';
   uploadedImages = [];
@@ -168,14 +168,13 @@ function editProduct(id) {
   const p = DataStore.getProduct(id);
   if (!p) return;
   showPage('addproduct');
-  document.getElementById('addProductTitle').textContent = '✏️ Edit Product';
+  document.getElementById('addProductTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Product';
   document.getElementById('prodId').value = p.id;
   document.getElementById('prodName').value = p.name;
   document.getElementById('prodBrand').value = p.brand;
   document.getElementById('prodPrice').value = p.price;
   document.getElementById('prodOriginal').value = p.original || '';
   document.getElementById('prodBadge').value = p.badge || '';
-  document.getElementById('prodEmoji').value = p.emoji || '👗';
   document.getElementById('prodStock').value = p.inStock ? 'true' : 'false';
   document.getElementById('prodDesc').value = p.description || '';
   document.getElementById('prodSizes').value = (p.sizes || []).join(', ');
@@ -209,7 +208,7 @@ function renderImagePreview() {
   container.innerHTML = uploadedImages.map((img, i) => `
     <div style="position:relative;width:80px;height:80px">
       <img src="${img}" style="width:100%;height:100%;object-fit:cover;border:1px solid var(--light-grey)">
-      <button type="button" onclick="removeImage(${i})" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--red);color:white;border:none;border-radius:50%;font-size:12px;cursor:pointer">✕</button>
+      <button type="button" onclick="removeImage(${i})" style="position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:var(--red);color:white;border:none;border-radius:50%;font-size:12px;cursor:pointer"><i class="fas fa-times"></i></button>
       ${i === 0 ? '<div style="position:absolute;bottom:0;left:0;right:0;background:var(--gold);font-size:8px;text-align:center;font-weight:600">MAIN</div>' : ''}
     </div>
   `).join('');
@@ -233,7 +232,6 @@ function saveProduct(e) {
     price: parseFloat(document.getElementById('prodPrice').value),
     original: parseFloat(document.getElementById('prodOriginal').value) || 0,
     badge: document.getElementById('prodBadge').value,
-    emoji: document.getElementById('prodEmoji').value || '👗',
     inStock: document.getElementById('prodStock').value === 'true',
     description: document.getElementById('prodDesc').value,
     sizes, colors,
@@ -244,10 +242,10 @@ function saveProduct(e) {
   };
   if (id) {
     DataStore.updateProduct(parseInt(id), data);
-    alert('✅ Product updated!');
+    alert('Product updated!');
   } else {
     DataStore.addProduct(data);
-    alert('✅ Product added!');
+    alert('Product added!');
   }
   showPage('products');
   renderDashboard();
@@ -267,7 +265,7 @@ function renderCategories() {
       <td>${c.id}</td>
       <td style="font-size:24px">${c.icon}</td>
       <td>${c.name}</td>
-      <td><button class="action-btn btn-sm" onclick="editCategory(${c.id})">✏️</button><button class="action-btn btn-sm" onclick="deleteCategory(${c.id})">🗑️</button></td>
+      <td><button class="action-btn btn-sm" onclick="editCategory(${c.id})"><i class="fas fa-edit"></i></button><button class="action-btn btn-sm" onclick="deleteCategory(${c.id})"><i class="fas fa-trash"></i></button></td>
     </tr>
   `).join('');
 }
@@ -344,8 +342,8 @@ function renderCoupons() {
       <td>₹${c.minOrder}</td>
       <td>${c.maxDiscount ? '₹' + c.maxDiscount : '∞'}</td>
       <td>${c.uses}/${c.maxUses}</td>
-      <td>${c.active ? '✅ Active' : '❌ Inactive'}</td>
-      <td><button class="action-btn btn-sm" onclick="toggleCoupon(${c.id})">${c.active ? 'Disable' : 'Enable'}</button><button class="action-btn btn-sm" onclick="deleteCoupon(${c.id})">🗑️</button></td>
+      <td>${c.active ? '<i class="fas fa-check-circle"></i> Active' : '<i class="fas fa-times-circle"></i> Inactive'}</td>
+      <td><button class="action-btn btn-sm" onclick="toggleCoupon(${c.id})">${c.active ? 'Disable' : 'Enable'}</button><button class="action-btn btn-sm" onclick="deleteCoupon(${c.id})"><i class="fas fa-trash"></i></button></td>
     </tr>
   `).join('');
 }
@@ -540,7 +538,7 @@ function renderReviews() {
   const products = DataStore.getProducts();
   document.getElementById('reviewsTable').innerHTML = (all.length === 0 ? [{id:0, productId:0, name:'-', rating:'-', comment:'No reviews yet', date:'-'}] : all).map(r => {
     const p = products.find(x => x.id === r.productId);
-    return `<tr><td>${p ? p.name : 'Unknown'}</td><td>${r.name}</td><td>${'⭐'.repeat(r.rating)}</td><td>${r.comment}</td><td>${r.date || '-'}</td><td><button class="action-btn btn-sm" onclick="deleteReview(${r.id})">🗑️</button></td></tr>`;
+    return `<tr><td>${p ? p.name : 'Unknown'}</td><td>${r.name}</td><td>${'<i class="fas fa-star"></i>'.repeat(r.rating)}</td><td>${r.comment}</td><td>${r.date || '-'}</td><td><button class="action-btn btn-sm" onclick="deleteReview(${r.id})"><i class="fas fa-trash"></i></button></td></tr>`;
   }).join('');
 }
 
@@ -578,25 +576,26 @@ function saveSettings() {
     if (pass.length < 4) { alert('Password must be at least 4 characters'); return; }
     localStorage.setItem('mf_admin_pass', pass);
     document.getElementById('setNewPass').value = '';
-    alert('✅ Password updated!');
+    alert('Password updated!');
   } else {
-    alert('✅ Settings saved!');
+    alert('Settings saved!');
   }
 }
 
 let storeOpen = true;
 function toggleStoreStatus() {
   storeOpen = !storeOpen;
-  document.getElementById('storeStatusBtn').textContent = storeOpen ? '🔴 Close Store' : '🟢 Open Store';
+  document.getElementById('storeStatusText').textContent = storeOpen ? 'Close Store' : 'Open Store';
+  document.querySelector('#storeStatusBtn i').className = storeOpen ? 'fas fa-toggle-on' : 'fas fa-toggle-off';
   alert(storeOpen ? 'Store is now OPEN' : 'Store is now CLOSED');
 }
 
 function saveSeo() {
-  alert('✅ SEO settings saved!');
+  alert('SEO settings saved!');
 }
 
 function saveShipping() {
-  alert('✅ Shipping settings saved!');
+  alert('Shipping settings saved!');
 }
 
 function exportBackup() {
@@ -608,7 +607,7 @@ function exportBackup() {
   a.download = `mithila-backup-${new Date().toISOString().slice(0,10)}.json`;
   a.click();
   URL.revokeObjectURL(url);
-  alert('✅ Backup downloaded!');
+  alert('Backup downloaded!');
 }
 
 function importBackup(event) {
@@ -619,21 +618,21 @@ function importBackup(event) {
     try {
       const data = JSON.parse(e.target.result);
       const result = DataStore.importData(data);
-      if (result.error) { alert('❌ ' + result.error); return; }
-      alert('✅ Data imported! Refreshing...');
+      if (result.error) { alert(result.error); return; }
+      alert('Data imported! Refreshing...');
       Object.values({dashboard:1,orders:1,products:1,categories:1,users:1,coupons:1,banners:1,reviews:1,brands:1}).forEach(() => {});
       location.reload();
-    } catch(err) { alert('❌ Invalid file format'); }
+    } catch(err) { alert('Invalid file format'); }
   };
   reader.readAsText(file);
   event.target.value = '';
 }
 
 function resetAllData() {
-  if (!confirm('⚠️ DELETE ALL DATA?')) return;
+  if (!confirm('DELETE ALL DATA?')) return;
   if (!confirm('Are you sure?')) return;
   DataStore.clearAllData();
-  alert('✅ All data reset to defaults');
+  alert('All data reset to defaults');
   location.reload();
 }
 

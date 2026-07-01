@@ -49,7 +49,7 @@
 
   <div class="profile-page" id="profilePage">
     <div id="notLoggedIn" class="empty-state" style="display:none">
-      <div class="empty-icon">🔒</div>
+      <div class="empty-icon"><i class="fas fa-lock"></i></div>
       <h3>Please Sign In</h3>
       <p style="margin-bottom:20px">Sign in to view your profile and orders.</p>
       <button class="submit-btn" style="width:auto;padding:12px 40px;display:inline-block" onclick="window.location='index.html'">Go to Shop</button>
@@ -57,7 +57,7 @@
 
     <div id="profileContent">
       <div class="profile-header">
-        <div class="profile-avatar" id="profileAvatar">👤</div>
+        <div class="profile-avatar" id="profileAvatar"><i class="fas fa-user-circle"></i></div>
         <div class="profile-name">
           <h2 id="profileName">User</h2>
           <p id="profileEmail">user@email.com</p>
@@ -84,7 +84,7 @@
       </div>
 
       <div class="profile-orders" id="ordersSection">
-        <h3>📦 My Orders</h3>
+        <h3><i class="fas fa-box"></i> My Orders</h3>
         <div id="myOrdersList"></div>
       </div>
     </div>
@@ -123,10 +123,10 @@
 
       const ordersContainer = document.getElementById('myOrdersList');
       if (orders.length === 0) {
-        ordersContainer.innerHTML = '<div class="empty-state"><div class="empty-icon">📦</div><p>No orders yet</p><button class="submit-btn" style="width:auto;padding:10px 30px;display:inline-block;margin-top:15px" onclick="window.location=\'index.html\'">Start Shopping</button></div>';
+        ordersContainer.innerHTML = '<div class="empty-state"><div class="empty-icon"><i class="fas fa-box"></i></div><p>No orders yet</p><button class="submit-btn" style="width:auto;padding:10px 30px;display:inline-block;margin-top:15px" onclick="window.location=\'index.html\'">Start Shopping</button></div>';
       } else {
         const statusIcons = { 'Pending': '<i class="fas fa-clock" style="color:#F57F17"></i>', 'Processing': '<i class="fas fa-spinner" style="color:#1565C0"></i>', 'Shipped': '<i class="fas fa-truck" style="color:#7B1FA2"></i>', 'Delivered': '<i class="fas fa-check-circle" style="color:#2E7D32"></i>', 'Cancelled': '<i class="fas fa-times-circle" style="color:#C62828"></i>' };
-        const statusLabels = { 'Pending': 'Pending — we\'ve received your order', 'Processing': 'Processing — your order is being prepared', 'Shipped': 'Shipped — on the way! 🚚', 'Delivered': 'Delivered — thank you!', 'Cancelled': 'Cancelled' };
+        const statusLabels = { 'Pending': 'Pending \u2014 we\'ve received your order', 'Processing': 'Processing \u2014 your order is being prepared', 'Shipped': 'Shipped \u2014 on the way!', 'Delivered': 'Delivered \u2014 thank you!', 'Cancelled': 'Cancelled' };
         ordersContainer.innerHTML = orders.map(o => `
           <div class="order-card">
             <div>

@@ -263,8 +263,8 @@ img { max-width: 100%; }
 .cat-circle:hover .cat-circle-icon { transform: scale(1.1); }
 
 .cat-circle-icon {
-  width: 60px;
-  height: 60px;
+  width: 70px;
+  height: 70px;
   border-radius: 50%;
   background: var(--light-grey);
   display: flex;
@@ -273,8 +273,10 @@ img { max-width: 100%; }
   font-size: 26px;
   transition: 0.3s;
   border: 2px solid transparent;
+  overflow: hidden;
 }
-.cat-circle.active .cat-circle-icon { border-color: var(--gold); background: var(--gold-light); }
+.cat-circle-img { width: 100%; height: 100%; object-fit: cover; }
+.cat-circle.active .cat-circle-icon { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,0.3); }
 
 .cat-circle-label {
   font-size: 10px;
@@ -960,10 +962,20 @@ img { max-width: 100%; }
   flex-direction: column;
   animation: fadeIn 0.5s ease;
 }
-.success-overlay h1 { font-size: 48px; color: var(--white); margin-bottom: 10px; }
-.success-overlay .success-icon { font-size: 80px; margin-bottom: 20px; }
-.success-overlay p { font-size: 18px; color: rgba(255,255,255,0.9); margin-bottom: 5px; }
-.success-overlay .order-id { font-size: 14px; color: rgba(255,255,255,0.7); margin-top: 10px; }
+.success-overlay h1 { font-size: 32px; color: var(--white); margin-bottom: 8px; text-align: center; }
+.success-overlay p { font-size: 16px; color: rgba(255,255,255,0.9); margin-bottom: 5px; }
+.success-overlay .order-id { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 10px; letter-spacing: 1px; }
+.success-overlay .success-order-summary { margin: 15px 0; padding: 15px 25px; background: rgba(255,255,255,0.1); border-radius: 12px; min-width: 280px; text-align: left; }
+.success-overlay .success-order-summary .sos-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; color: rgba(255,255,255,0.85); }
+.success-overlay .success-order-summary .sos-row.sos-total { border-top: 1px solid rgba(255,255,255,0.2); margin-top: 6px; padding-top: 8px; font-size: 16px; font-weight: 700; color: #fff; }
+.success-overlay .success-order-summary .sos-row .sos-val { font-weight: 600; }
+.success-overlay .success-order-summary .sos-row.sos-discount .sos-val { color: #a8ffa8; }
+.success-checkmark { margin-bottom: 15px; }
+.success-checkmark svg { display: block; margin: 0 auto; }
+.success-checkmark-circle { animation: drawCircle 0.6s ease-out forwards; }
+.success-checkmark-path { animation: drawCheck 0.4s 0.5s ease-out forwards; }
+@keyframes drawCircle { to { stroke-dashoffset: 0; } }
+@keyframes drawCheck { to { stroke-dashoffset: 0; } }
 .success-overlay .success-btn {
   margin-top: 30px; padding: 14px 40px;
   background: var(--white); color: #27AE60;
